@@ -7,7 +7,7 @@ def create_connection():
     try:
         conn = psycopg2.connect(
             host="db",  # This is the hostname of the db service in docker-compose
-            database="mydatabase",
+            database="receipt_extraction",
             user="user",
             password="password"
         )

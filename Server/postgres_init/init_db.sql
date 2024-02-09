@@ -1,5 +1,5 @@
-CREATE TABLE IF NOT EXISTS "User" (
-    "User_id" UUID PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS "Users" (
+    "user_id" UUID PRIMARY KEY,
     "email" VARCHAR(255) NOT NULL,
     "password" VARCHAR(255) NOT NULL
 );

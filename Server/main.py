@@ -6,6 +6,10 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from helper import get_db_connection
 import uuid
+import logging
+
+load_dotenv()
+
 
 
 DB_HOST = os.getenv('DB_HOST')
@@ -28,18 +32,55 @@ class User(BaseModel):
 
 @app.post("/register/")
 async def create_item(user: User):
-    conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
-    cursor = conn.cursor(cursor_factory=RealDictCursor)
-    user_id = uuid.uuid4()
     try:
-        cursor.execute(
-            "INSERT INTO User (User_id, email, password) VALUES (%s, %s, %s) RETURNING User_id;",
-            (str(user_id), user.email, user.password)
-        )
-        user_id = cursor.fetchone()['id']
+        conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        user_id = uuid.uuid4()
+        print("executing query")
+        insert_query = "INSERT INTO \"Users\" (user_id, email, password) VALUES (%s, %s, %s)"
+        data_to_insert = (str(user_id), user.email, user.password)
+
+        # Execute the query
+        cursor.execute(insert_query, data_to_insert)
+        print("executed query")
+        
+        # return_data = cursor.fetchall()
+        print(f"return_data: {user_id}")
         conn.commit()
+        cursor.close()
+        conn.close()
+        return {"user_id": user_id}
     except Exception as e:
         conn.rollback()
+        print(f"Exception: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.get("/users/")
+async def get_user(kwargs: dict):
+    try:
+        conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        user_id = kwargs.get("user_id")
+        print(f"fetching for  {user_id}")
+        select_query = "SELECT * FROM \"Users\" WHERE user_id = %s"
+        data_to_select = (user_id,)
+
+        # Execute the query
+        cursor.execute(select_query, data_to_select)
+        print("executed query")
+        
+        return_data = cursor.fetchall()
+        print(f"return_data: {return_data}")
+        cursor.close()
+        conn.close()
+        return return_data
+    except Exception as e:
+        conn.rollback()
+        print(f"Exception: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         cursor.close()

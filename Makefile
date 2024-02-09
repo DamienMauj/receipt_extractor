@@ -1,7 +1,7 @@
 .PHONY: build-server stop-server rebuild-db
 
 # Path to your server directory
-SERVER_DIR = Server
+SERVER_DIR = src/Server
 
 # Docker-compose service name for your database
 DB_SERVICE_NAME = db

@@ -59,9 +59,11 @@ async def create_item(user: User):
         conn.close()
 
 
-@app.get("/users/")
+@app.post("/users/")
 async def get_user(kwargs: dict):
+
     try:
+        print(f"kwargs: {kwargs}")
         conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         user_id = kwargs.get("user_id")

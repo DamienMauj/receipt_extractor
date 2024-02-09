@@ -53,6 +53,7 @@ class MyHomePage extends StatelessWidget {
             onPressed: () {
               print('button pressed!');
               appState.getNext();
+              sendData('http://192.168.68.110:8000/users/', {'user_id': "f0a39253-df87-4f42-b8da-a9c893544b2c"});// url should be .../users/ and not .../users
             },
             child: Text('Next'),
           ),
@@ -101,9 +102,11 @@ Future<void> sendData(String url, Map<String, String> data) async {
     // If the server returns a 200 OK response,
     // then parse the JSON.
     print('Data sent successfully');
+    print('Response: ${response.body}');
   } else {
     // If the server returns an unsuccessful response code,
     // then throw an exception.
-    throw Exception('Failed to send data');
+    // throw Exception('Failed to send data');
+    print('Failed to send data');
   }
 }

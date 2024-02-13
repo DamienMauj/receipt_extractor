@@ -12,6 +12,7 @@ server-build:
 
 # Start the server
 server-start:
+	@(cd $(SERVER_DIR) && chmod +x update_ip.sh && ./update_ip.sh)
 	@(cd $(SERVER_DIR) && docker-compose up)
 
 # Stop the server

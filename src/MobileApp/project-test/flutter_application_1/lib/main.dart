@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+
+void main() async {
+  await dotenv.load(fileName: "lib/.env");
   runApp(MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -37,7 +41,23 @@ class MyAppState extends ChangeNotifier {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  final TextEditingController _endpointController = TextEditingController(text: "http://${dotenv.env['CURRENT_IP']}:8000/users/");
+  final TextEditingController _bodyController = TextEditingController(text: '{"user_id" : "f0a39253-df87-4f42-b8da-a9c893544b2c"}');
+  String _responseBody = '';
+
+  @override
+  void dispose() {
+    _endpointController.dispose();
+    _bodyController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
@@ -49,19 +69,38 @@ class MyHomePage extends StatelessWidget {
         children: [
           Text('A random idea:'),
           BigCard(pair: pair),
+          TextField(
+            controller: _endpointController,
+            decoration: InputDecoration(
+              labelText: 'Endpoint',
+            ),
+          ),
+          TextField(
+            controller: _bodyController,
+            decoration: InputDecoration(
+              labelText: 'Body',
+            ),
+          ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               print('button pressed!');
               appState.getNext();
-              sendData('http://192.168.68.110:8000/users/', {'user_id': "f0a39253-df87-4f42-b8da-a9c893544b2c"});// url should be .../users/ and not .../users
+              String endpoint = _endpointController.text;
+              print("error check:");
+              print(_bodyController.text);
+              Map<String, dynamic> body = jsonDecode(_bodyController.text);
+              _responseBody = await sendData(endpoint, body);
+              setState(() {}); // Update the UI
             },
-            child: Text('Next'),
+            child: Text('Send'),
           ),
+          Text('Response: $_responseBody'),
         ],
       ),
     );
   }
 }
+
 
 class BigCard extends StatelessWidget {
   const BigCard({
@@ -88,8 +127,7 @@ class BigCard extends StatelessWidget {
     );
   }
 }
-
-Future<void> sendData(String url, Map<String, String> data) async {
+Future<String> sendData(String url, Map<String, dynamic> data) async {
   final response = await http.post(
     Uri.parse(url),
     headers: <String, String>{
@@ -102,11 +140,11 @@ Future<void> sendData(String url, Map<String, String> data) async {
     // If the server returns a 200 OK response,
     // then parse the JSON.
     print('Data sent successfully');
-    print('Response: ${response.body}');
+    return response.body;
   } else {
     // If the server returns an unsuccessful response code,
     // then throw an exception.
-    // throw Exception('Failed to send data');
     print('Failed to send data');
+    return 'Failed to send data';
   }
 }

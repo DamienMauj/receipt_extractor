@@ -1,3 +1,4 @@
 *.pt
 src/Server/data
 src/MobileApp/flutter/*
+**/runs/**

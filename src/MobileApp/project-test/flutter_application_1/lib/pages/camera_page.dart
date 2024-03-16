@@ -10,6 +10,7 @@ class _CameraPageState extends State<CameraPage> {
   CameraController? _controller;
   List<CameraDescription>? _cameras;
   int _selectedCameraIdx = 0;
+  XFile? _imageFile;
 
   @override
   void initState() {
@@ -42,6 +43,20 @@ class _CameraPageState extends State<CameraPage> {
     super.dispose();
   }
 
+  void _takePicture() async {
+    if (_controller!.value.isInitialized && !_controller!.value.isTakingPicture) {
+      try {
+        final file = await _controller!.takePicture();
+        setState(() {
+          _imageFile = file;
+        });
+        // Optionally, save the image to the device's gallery or display it in another page
+      } catch (e) {
+        print(e);  // Handle any errors
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_controller == null || !_controller!.value.isInitialized) {
@@ -50,7 +65,26 @@ class _CameraPageState extends State<CameraPage> {
 
     return Scaffold(
       appBar: AppBar(title: Text('Take a Picture')),
-      body: CameraPreview(_controller!),
+      body: Column(
+        children: [
+          Expanded(
+            child: CameraPreview(_controller!),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                ElevatedButton.icon(
+                  onPressed: _takePicture,
+                  icon: Icon(Icons.camera),
+                  label: Text('Capture'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

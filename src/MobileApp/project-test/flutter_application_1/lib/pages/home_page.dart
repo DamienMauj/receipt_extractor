@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:flutter_application_1/models/app_state.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_application_1/widgets/big_card.dart';
-import 'package:flutter_application_1/pages/second_page.dart';
+import 'package:flutter_application_1/pages/camera_page.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -55,10 +55,10 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SecondPage()),
+                MaterialPageRoute(builder: (context) =>CameraPage()),
               );
             },
-            child: Text('Go to Second Page'),
+            child: Text('Go to camera Page'),
           ),
           ElevatedButton(
             onPressed: () async {

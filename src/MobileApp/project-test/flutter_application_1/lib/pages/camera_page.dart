@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter_application_1/services/network_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 
 class CameraPage extends StatefulWidget {
   @override
@@ -80,6 +83,12 @@ class _CameraPageState extends State<CameraPage> {
                   icon: Icon(Icons.camera),
                   label: Text('Capture'),
                 ),
+                if (_imageFile != null)
+                  ElevatedButton.icon(
+                    onPressed: () { sendPicture(_imageFile, "http://${dotenv.env['CURRENT_IP']}:8000/uploadPicture/"); },
+                    icon: Icon(Icons.upload),
+                    label: Text('Upload Picture'),
+                  ),
               ],
             ),
           ),
@@ -87,4 +96,6 @@ class _CameraPageState extends State<CameraPage> {
       ),
     );
   }
+
+
 }

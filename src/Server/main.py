@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel, EmailStr
 from dotenv import load_dotenv
 import os
@@ -87,3 +87,20 @@ async def get_user(kwargs: dict):
     finally:
         cursor.close()
         conn.close()
+
+@app.post("/uploadPicture/")
+async def upload_image(file: UploadFile = File(...)):
+    try:
+        file_location = f"./uploads/{file.filename}"  # Define file location
+
+        # Save the uploaded file to a directory
+        with open(file_location, "wb+") as file_object:
+            file_object.write(file.file.read())
+
+        print(f"file '{file.filename}' saved at '{file_location}'")
+
+        # After saving the file, you can do additional processing if required
+        return {"info": f"file '{file.filename}' saved at '{file_location}'"}
+    except Exception as e:
+        print(f"Exception: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

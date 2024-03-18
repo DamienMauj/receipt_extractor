@@ -40,6 +40,7 @@ dependencies:
   http: any
   flutter_dotenv: ^5.1.0
   camera: ^0.10.5+9
+  mime: ^1.0.5
 
 
 

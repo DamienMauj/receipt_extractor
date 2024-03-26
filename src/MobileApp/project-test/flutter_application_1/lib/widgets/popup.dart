@@ -1,17 +1,44 @@
 import 'package:flutter/material.dart';
 
 void showPopup(BuildContext context, String buttonText, String popupText) {
+  TextEditingController textEditingController = TextEditingController(text: popupText);
+
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
         title: Text('Popup'),
-        content: Text(popupText),
+        content: Column(
+          mainAxisSize: MainAxisSize.min, // Use as little space as needed
+          children: [
+            Expanded(
+              child: TextField(
+                controller: textEditingController,
+                decoration: InputDecoration(
+                  hintText: 'Enter text here',
+                  border: OutlineInputBorder(), // Adds a border around the TextField
+                ),
+                maxLines: null, // Allows for unlimited lines
+                minLines: 5,  // Sets a minimum size for the text field
+              ),
+            ),
+          ],
+        ),
         actions: <Widget>[
           TextButton(
             child: Text('Close'),
             onPressed: () {
               Navigator.of(context).pop(); // Close the popup
+            },
+          ),
+          TextButton(
+            child: Text('Save'),
+            onPressed: () {
+              // Handle the edited text
+              String editedText = textEditingController.text;
+              // For example, print the edited text
+              print(editedText);
+              Navigator.of(context).pop();
             },
           ),
         ],

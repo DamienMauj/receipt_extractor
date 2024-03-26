@@ -11,12 +11,13 @@ import numpy
 import cv2
 import pytesseract
 from ultralytics import YOLO
+from model.functions.extract_receipt import extract_receipt
 
 log = logging.getLogger("uvicorn")
 
 load_dotenv()
 
-model = YOLO("model/0.1/receipt_extractor.pt")
+model = YOLO("model/versions/0.1/receipt_extractor.pt")
 log.info("INFO: model loaded")
 
 DB_HOST = os.getenv('DB_HOST')
@@ -106,8 +107,12 @@ async def upload_image(file: UploadFile = File(...)):
 
         print(f"file '{file.filename}' saved at '{file_location}'")
 
+        # Run your model
+        results = extract_receipt(model, file_location)
+
         # After saving the file, you can do additional processing if required
-        return {"info": f"file '{file.filename}' saved at '{file_location}'"}
+        return {"info": f"file '{file.filename}' saved at '{file_location}'",
+                "results": results}
     except Exception as e:
         print(f"Exception: {e}")
         raise HTTPException(status_code=500, detail=str(e))

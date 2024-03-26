@@ -9,6 +9,9 @@ WORKDIR /usr/src/app
 # add cv2 dependencies
 RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 
+#add tesseract dependencies
+RUN apt-get update && apt-get install tesseract-ocr -y
+
 
 # Copy the current directory contents into the container
 COPY . .

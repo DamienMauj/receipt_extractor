@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/pages/graph_page.dart';
 import 'package:flutter_application_1/services/network_service.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
@@ -6,6 +7,7 @@ import 'package:flutter_application_1/models/app_state.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_application_1/widgets/big_card.dart';
 import 'package:flutter_application_1/pages/camera_page.dart';
+import 'package:flutter_application_1/pages/graph_page.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -59,6 +61,15 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             },
             child: Text('Go to camera Page'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) =>GraphPage()),
+              );
+            },
+            child: Text('Go to graph Page'),
           ),
           ElevatedButton(
             onPressed: () async {

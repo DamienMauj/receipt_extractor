@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:flutter_application_1/models/app_state.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_application_1/widgets/big_card.dart';
+import 'package:flutter_application_1/widgets/popup.dart';
 import 'package:flutter_application_1/pages/camera_page.dart';
 import 'package:flutter_application_1/pages/graph_page.dart';
 
@@ -84,6 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             child: Text('Send'),
           ),
+          TextPopupButton(buttonText: "buttonText", popupText: "popupText"),
           Text('Response: $_responseBody'),
         ],
       ),

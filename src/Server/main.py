@@ -7,10 +7,17 @@ from psycopg2.extras import RealDictCursor
 from helper import get_db_connection
 import uuid
 import logging
+import numpy
+import cv2
+import pytesseract
+from ultralytics import YOLO
+
+log = logging.getLogger("uvicorn")
 
 load_dotenv()
 
-
+model = YOLO("model/0.1/receipt_extractor.pt")
+log.info("INFO: model loaded")
 
 DB_HOST = os.getenv('DB_HOST')
 DB_PORT = os.getenv('DB_PORT')

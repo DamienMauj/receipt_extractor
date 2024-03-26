@@ -6,6 +6,10 @@ FROM python:3.9
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
+# add cv2 dependencies
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+
+
 # Copy the current directory contents into the container
 COPY . .
 

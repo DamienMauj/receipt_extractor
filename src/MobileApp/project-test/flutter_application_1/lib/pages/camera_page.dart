@@ -85,7 +85,7 @@ class _CameraPageState extends State<CameraPage> {
                 ),
                 if (_imageFile != null)
                   ElevatedButton.icon(
-                    onPressed: () { sendPicture(_imageFile, "http://${dotenv.env['CURRENT_IP']}:8000/uploadPicture/"); },
+                    onPressed: () { sendPicture(context, _imageFile, "http://${dotenv.env['CURRENT_IP']}:8000/uploadPicture/"); },
                     icon: Icon(Icons.upload),
                     label: Text('Upload Picture'),
                   ),

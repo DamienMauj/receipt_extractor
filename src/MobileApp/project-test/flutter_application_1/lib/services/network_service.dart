@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'package:camera/camera.dart';
 import 'package:mime/mime.dart' as mime;
 import 'package:http_parser/http_parser.dart';
+import 'package:flutter_application_1/widgets/popup.dart';
+import 'package:flutter/material.dart';
+
 
 
 Future<String> sendData(String url, Map<String, dynamic> data) async {
@@ -27,8 +30,8 @@ Future<String> sendData(String url, Map<String, dynamic> data) async {
   }
 }
 
-  Future<void> sendPicture(XFile? _imageFile, String endpoint) async {
-    if (_imageFile == null) return;
+  Future<void> sendPicture(BuildContext context, XFile? _imageFile, String endpoint) async {
+    if (_imageFile == null) return ;
 
     try {
       final mimeTypeData = mime.lookupMimeType(_imageFile!.path, headerBytes: [0xFF, 0xD8])?.split('/');
@@ -40,14 +43,19 @@ Future<String> sendData(String url, Map<String, dynamic> data) async {
         contentType: MediaType(mimeTypeData![0], mimeTypeData[1]),
       ));
 
-      var response = await request.send();
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
         print('Picture uploaded');
+        showPopup(context, "uplaod picture", response.body);
+        return ;
       } else {
         print('Failed to upload picture');
+        return ;
       }
     } catch (e) {
       print(e.toString());
+      return ;
     }
   }

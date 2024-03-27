@@ -9,7 +9,6 @@ import 'package:flutter_application_1/widgets/big_card.dart';
 import 'package:flutter_application_1/widgets/popup.dart';
 import 'package:flutter_application_1/widgets/custom_button.dart';
 import 'package:flutter_application_1/pages/camera_page.dart';
-import 'package:flutter_application_1/pages/graph_page.dart';
 
 class MyHomePage extends StatefulWidget {
   @override

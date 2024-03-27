@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/services/network_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+
 
 void showPopup(BuildContext context, String buttonText, String popupText) {
   TextEditingController textEditingController = TextEditingController(text: popupText);
+  final TextEditingController _endpointController = TextEditingController(text: "http://${dotenv.env['CURRENT_IP']}:8000/uploadReceiptData/");
 
   showDialog(
     context: context,
@@ -32,12 +37,16 @@ void showPopup(BuildContext context, String buttonText, String popupText) {
             },
           ),
           TextButton(
-            child: Text('Save'),
+            child: Text('Submit'),
             onPressed: () {
               // Handle the edited text
               String editedText = textEditingController.text;
               // For example, print the edited text
               print(editedText);
+              String endpoint = _endpointController.text; 
+              Map<String, dynamic> body = {'text': editedText};
+              sendData(endpoint, body);
+
               Navigator.of(context).pop();
             },
           ),

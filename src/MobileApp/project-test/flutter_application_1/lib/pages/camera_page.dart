@@ -68,28 +68,34 @@ class _CameraPageState extends State<CameraPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            if (_imageFile != null)
-              Image.file(File(_imageFile!.path)),
-            
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: _showCameraPopup,
-                  child: Text('Open Camera'),
-                ),
-                ElevatedButton(
-                  onPressed: _pickImageFromGallery,
-                  child: Text('Open Gallery'),
-                ),
-                if (_imageFile != null)
-                  ElevatedButton.icon(
-                    onPressed: () { sendPicture(context, _imageFile, "http://${dotenv.env['CURRENT_IP']}:8000/uploadPicture/"); },
-                    icon: Icon(Icons.upload),
-                    label: Text('Upload Picture'),
-                  ),
-              ],
+            Expanded(
+              child: _imageFile == null
+                  ? Center(child: Text('No image selected'))
+                  : AspectRatio(
+                      aspectRatio: 1, // You can adjust this ratio according to your needs
+                      child: Image.file(File(_imageFile!.path), fit: BoxFit.cover),
+                    ),
             ),
+              Row(
+
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: _showCameraPopup,
+                    child: Text('Open Camera'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _pickImageFromGallery,
+                    child: Text('Open Gallery'),
+                  ),
+                  if (_imageFile != null)
+                    ElevatedButton.icon(
+                      onPressed: () { sendPicture(context, _imageFile, "http://${dotenv.env['CURRENT_IP']}:8000/uploadPicture/"); },
+                      icon: Icon(Icons.upload),
+                      label: Text('Upload Picture'),
+                    ),
+                ],
+              ),
           ],
         ),
       ),

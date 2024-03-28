@@ -32,6 +32,9 @@ def extract_receipt(model:YOLO, file_path:str)->dict:
         crop_img = image[y1:y2, x1:x2]
 
         receipt_data[class_label] = extract_text.extract_text_from_image(crop_img)
+
+        print(f"\n{class_label}: {receipt_data[class_label]}")
+
     return receipt_data
 
 # if __name__ == "__main__":

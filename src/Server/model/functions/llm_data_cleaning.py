@@ -1,4 +1,5 @@
 import openai
+import json
 
 def generate_receipt_json(api_key:str, raw_data:dict)-> dict:
     
@@ -76,49 +77,53 @@ You have to respond in the json format and the json format only without saying a
 
     prompt = prompt.format(input_text=input_text)
 
-    print(f"pro÷mpt: {prompt}")
+    # print(f"pro÷mpt: {prompt}")
     
-    # response = openai.chat.completions.create(
-    #     model="gpt-3.5-turbo",
-    #     messages=prompt,
-    #     # max_tokens=150,
-    #     # n=1,
-    #     # stop=None
-    # )
-    # print(f"response: {response}")
-    print("return mock rresponse until fixed")
-
-    quick_answer = {
-      "Shop_Information": "LONDON SUPERMARKET LTD",
-      "Total": "",
-      "Time": "",
-      "Item_purchase": {
-        "DISQUE BE PIZZA A GARNIR": {
-          "qty": 1,
-          "price": 4.00
-        },
-        "ESPUNA 80G TRAD CHORIZO": {
-          "qty": 1,
-          "price": 58.00
-        },
-        "DENNY WHITE BUT .MUSHROOM": {
-          "qty": 1,
-          "price": 149.95
-        },
-        "CH COCA ZERO 1L": {
-          "qty": 1,
-          "price": 51.00
-        },
-        "VEG HE 250G RAINBOW TOMATO": {
-          "qty": 1,
-          "price": 138.00
-        }
-      }
-    }
+    response = openai.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages= [{
+          "role": "user",
+          "content": prompt
+        }]
+        # max_tokens=150,
+        # n=1,
+        # stop=None
+    )
+    extracted_response = response.choices[0].message.content
+    print(f"response: {extracted_response}")
+    # parse json
+    extracted_response = json.loads(extracted_response)
+    # response = {
+    #   "Shop_Information": "LONDON SUPERMARKET LTD",
+    #   "Total": "",
+    #   "Time": "",
+    #   "Item_purchase": {
+    #     "DISQUE BE PIZZA A GARNIR": {
+    #       "qty": 1,
+    #       "price": 4.00
+    #     },
+    #     "ESPUNA 80G TRAD CHORIZO": {
+    #       "qty": 1,
+    #       "price": 58.00
+    #     },
+    #     "DENNY WHITE BUT .MUSHROOM": {
+    #       "qty": 1,
+    #       "price": 149.95
+    #     },
+    #     "CH COCA ZERO 1L": {
+    #       "qty": 1,
+    #       "price": 51.00
+    #     },
+    #     "VEG HE 250G RAINBOW TOMATO": {
+    #       "qty": 1,
+    #       "price": 138.00
+    #     }
+    #   }
+    # }
 
     #make the dictionary all lowercase
     return_data = {}
-    for key, value in quick_answer.items():
+    for key, value in extracted_response.items():
         if isinstance(value, dict):
             return_data[key.lower()] = {k.lower(): v for k, v in value.items()}
         else:

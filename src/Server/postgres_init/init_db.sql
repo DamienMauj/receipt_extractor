@@ -13,13 +13,13 @@ CREATE TABLE IF NOT EXISTS "raw_Receipt" (
 CREATE TABLE IF NOT EXISTS "receipt" (
     "receipt_id" UUID PRIMARY KEY,
     "type" VARCHAR(255),
-    "shop_information" VARCHAR(255),
+    "shop_information" TEXT,
     "time" TIMESTAMP,
     "total" DOUBLE PRECISION,
-    "item_purchase" VARCHAR(255),
-    "raw_total" VARCHAR(255),
-    "raw_shop_information" VARCHAR(255),
-    "raw_time" VARCHAR(255),
-    "raw_item_purchase" VARCHAR(255),
+    "item_purchase" TEXT,
+    "raw_total" TEXT,
+    "raw_shop_information" TEXT,
+    "raw_time" TEXT,
+    "raw_item_purchase" TEXT,
     "status" VARCHAR(255)
 );

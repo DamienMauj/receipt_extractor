@@ -11,9 +11,9 @@ void showPopup(BuildContext context, String buttonText, String popupText) {
 
   Map<String, dynamic> response = json.decode(popupText);
   Map<String, dynamic> result = response['results'] ?? {};
-  TextEditingController shopNameController = TextEditingController(text: result["Shop_Information"].toString());
-  TextEditingController dateController = TextEditingController(text: result["Time"].toString());
-  TextEditingController totalController = TextEditingController(text: result["Total"].toString());
+  TextEditingController shopNameController = TextEditingController(text: result["shop_information"].toString());
+  TextEditingController dateController = TextEditingController(text: result["time"].toString());
+  TextEditingController totalController = TextEditingController(text: result["total"].toString());
 
   Map<String, TextEditingController> nameControllers = {};
   Map<String, TextEditingController> qtyControllersDict = {};
@@ -89,8 +89,8 @@ List<Widget> buildItemFields(Map<String, dynamic> items, Map<String, TextEditing
             children: [
               buildBasicResponseField(shopNameController, "Shop Name", _fontSize),
               buildBasicResponseField(dateController, "Date", _fontSize),
-              buildBasicResponseField(totalController, "Total", _fontSize),
-              ...buildItemFields(result["Item_purchase"], nameControllers, qtyControllersDict, priceControllersDict)
+              buildBasicResponseField(totalController, "total", _fontSize),
+              ...buildItemFields(result["item_purchase"], nameControllers, qtyControllersDict, priceControllersDict)
               // Add other widgets here if needed
             ],
           ),

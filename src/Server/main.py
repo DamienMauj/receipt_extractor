@@ -28,6 +28,47 @@ DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_NAME = os.getenv('DB_NAME')
 app = FastAPI()
 
+receipt_table_column = [
+    "receipt_id", 
+    "type", 
+    "shop_information", 
+    "time", 
+    "total", 
+    "item_purchase", 
+    "raw_total", 
+    "raw_shop_information", 
+    "raw_time", 
+    "raw_item_purchase", 
+    "status"]
+
+receipt_insert_query = insert_query = """
+INSERT INTO receipt (
+    receipt_id, 
+    type, 
+    shop_information, 
+    time, 
+    total, 
+    item_purchase, 
+    raw_total, 
+    raw_shop_information, 
+    raw_time, 
+    raw_item_purchase, 
+    status
+) VALUES (
+    %(receipt_id)s, 
+    %(type)s, 
+    %(shop_information)s, 
+    %(time)s, 
+    CAST(%(total)s AS DOUBLE PRECISION), 
+    %(item_purchase)s, 
+    %(raw_total)s, 
+    %(raw_shop_information)s, 
+    %(raw_time)s, 
+    %(raw_item_purchase)s, 
+    %(status)s
+)
+"""
+
 @app.get("/hello")
 async def hello_world():
     return {"message": "Hello, World!"}
@@ -99,7 +140,7 @@ async def get_user(kwargs: dict):
 
 @app.post("/uploadPicture/")
 async def upload_image(file: UploadFile = File(...)):
-    try:
+    # try:
         file_location = f"./uploads/{file.filename}"  # Define file location
 
         # Save the uploaded file to a directory
@@ -113,12 +154,50 @@ async def upload_image(file: UploadFile = File(...)):
 
         process_results = generate_receipt_json(os.getenv("OPENAI_API_KEY"), results)
 
+        # generate uuid for receipt base on the receipt name
+        process_results["receipt_id"] = str(uuid.uuid4())
+        process_results["status"] = "pending"
+        process_results["type"] = "grocery"
+        
+        to_upload = process_results.copy()
+        to_upload["item_purchase"] = str(to_upload["item_purchase"])
+
+        # for item in result put them into to_uplaod dict with while adding raw at the key
+        for key, value in results.items():
+            ###### TO BE CHANGE IN THE MODEL PREDICTION ####### 
+            if key == "shop_informaton":
+                to_upload["raw_shop_information"] = value
+            elif key == "item_purshase":
+                to_upload["raw_item_purchase"] = value
+            else: 
+                to_upload[f"raw_{key}"] = value
+
+        for key in receipt_table_column:
+            if key not in to_upload:
+                print(f"adding {key} to to_upload")
+                to_upload[key] = None
+        
+        for key, value in to_upload.items():
+            if value == "":
+                to_upload[key] = None
+
+        print(f"to_upload: {to_upload}")
+
+        #insert into db
+        conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute(insert_query, to_upload)
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        print(f"results: {process_results}")
         # After saving the file, you can do additional processing if required
         return {"info": f"file '{file.filename}' saved at '{file_location}'",
                 "results": process_results}
-    except Exception as e:
-        print(f"Exception: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    # except Exception as e:
+    #     print(f"Exception: {e}")
+    #     raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/uploadReceiptData/")
 async def upload_receipt_data(kwargs: dict):
@@ -126,21 +205,21 @@ async def upload_receipt_data(kwargs: dict):
         print(f"kwargs: {kwargs}")
         conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        # user_id = kwargs.get("user_id")
-        # receipt_data = kwargs.get("receipt_data")
-        # print(f"inserting for  {user_id}")
-        # insert_query = "INSERT INTO \"Receipts\" (user_id, receipt_data) VALUES (%s, %s)"
-        # data_to_insert = (user_id, receipt_data)
+        user_id = kwargs.get("user_id")
+        receipt_data = kwargs.get("receipt_data")
+        print(f"inserting for  {user_id}")
+        insert_query = "INSERT INTO \"Receipts\" (user_id, receipt_data) VALUES (%s, %s)"
+        data_to_insert = (user_id, receipt_data)
 
 
-    #     # Execute the query
-    #     cursor.execute(insert_query, data_to_insert)
-    #     print("executed query")
+        # Execute the query
+        cursor.execute(insert_query, data_to_insert)
+        print("executed query")
         
-    #     conn.commit()
-    #     cursor.close()
-    #     conn.close()
-        # return {"status": "success"}
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return {"status": "success"}
     except Exception as e:
         # conn.rollback()
         print(f"Exception: {e}")

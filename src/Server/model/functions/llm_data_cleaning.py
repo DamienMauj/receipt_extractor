@@ -87,32 +87,41 @@ You have to respond in the json format and the json format only without saying a
     # )
     # print(f"response: {response}")
     print("return mock rresponse until fixed")
-    return {
-  "Shop_Information": "LONDON SUPERMARKET LTD",
-  "Total": "",
-  "Time": "",
-  "Item_purchase": {
-    "DISQUE BE PIZZA A GARNIR": {
-      "qty": 1,
-      "price": 4.00
-    },
-    "ESPUNA 80G TRAD CHORIZO": {
-      "qty": 1,
-      "price": 58.00
-    },
-    "DENNY WHITE BUT .MUSHROOM": {
-      "qty": 1,
-      "price": 149.95
-    },
-    "CH COCA ZERO 1L": {
-      "qty": 1,
-      "price": 51.00
-    },
-    "VEG HE 250G RAINBOW TOMATO": {
-      "qty": 1,
-      "price": 138.00
+
+    quick_answer = {
+      "Shop_Information": "LONDON SUPERMARKET LTD",
+      "Total": "",
+      "Time": "",
+      "Item_purchase": {
+        "DISQUE BE PIZZA A GARNIR": {
+          "qty": 1,
+          "price": 4.00
+        },
+        "ESPUNA 80G TRAD CHORIZO": {
+          "qty": 1,
+          "price": 58.00
+        },
+        "DENNY WHITE BUT .MUSHROOM": {
+          "qty": 1,
+          "price": 149.95
+        },
+        "CH COCA ZERO 1L": {
+          "qty": 1,
+          "price": 51.00
+        },
+        "VEG HE 250G RAINBOW TOMATO": {
+          "qty": 1,
+          "price": 138.00
+        }
+      }
     }
-  }
-}
 
+    #make the dictionary all lowercase
+    return_data = {}
+    for key, value in quick_answer.items():
+        if isinstance(value, dict):
+            return_data[key.lower()] = {k.lower(): v for k, v in value.items()}
+        else:
+            return_data[key.lower()] = value
 
+    return return_data

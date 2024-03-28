@@ -106,19 +106,22 @@ List<Widget> buildItemFields(Map<String, dynamic> items, Map<String, TextEditing
             child: Text('Submit'),
             onPressed: () {
                 Map<String, dynamic> updatedResult = {
-                "Shop_Information": shopNameController.text,
-                "Time": dateController.text,
-                "Total": totalController.text,
-                "Item_purchase": {}
+                "shop_information": shopNameController.text,
+                "time": dateController.text,
+                "total": totalController.text,
+                "item_purchase": {}
               };
 
-              for (var entry in result["Item_purchase"].entries) {
-                updatedResult["Item_purchase"][entry.key] = {
+              for (var entry in result["item_purchase"].entries) {
+                updatedResult["item_purchase"][entry.key] = {
                   "name": nameControllers[entry.key]?.text,
                   "qty": qtyControllersDict[entry.key]?.text,
                   "price": priceControllersDict[entry.key]?.text
                 };
               }
+
+              updatedResult["receipt_id"] = result["receipt_id"];
+              updatedResult["type"] = result["type"];
 
               String updatedJson = json.encode({
                 "results": updatedResult

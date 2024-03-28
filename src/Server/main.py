@@ -69,6 +69,19 @@ INSERT INTO receipt (
 )
 """
 
+receipt_update_query = """
+UPDATE receipt
+SET
+    type = %(type)s,
+    shop_information = %(shop_information)s,
+    time = %(time)s,
+    total = %(total)s,
+    item_purchase = %(item_purchase)s,
+    status = %(status)s
+WHERE
+    receipt_id = %(receipt_id)s
+"""
+
 @app.get("/hello")
 async def hello_world():
     return {"message": "Hello, World!"}
@@ -140,14 +153,14 @@ async def get_user(kwargs: dict):
 
 @app.post("/uploadPicture/")
 async def upload_image(file: UploadFile = File(...)):
-    # try:
+    try:
         file_location = f"./uploads/{file.filename}"  # Define file location
 
         # Save the uploaded file to a directory
         with open(file_location, "wb+") as file_object:
             file_object.write(file.file.read())
 
-        print(f"file '{file.filename}' saved at '{file_location}'")
+        # print(f"file '{file.filename}' saved at '{file_location}'")
 
         # Run your model
         results = extract_receipt(model, file_location)
@@ -174,30 +187,32 @@ async def upload_image(file: UploadFile = File(...)):
 
         for key in receipt_table_column:
             if key not in to_upload:
-                print(f"adding {key} to to_upload")
+                # print(f"adding {key} to to_upload")
                 to_upload[key] = None
         
         for key, value in to_upload.items():
             if value == "":
                 to_upload[key] = None
 
-        print(f"to_upload: {to_upload}")
+        # print(f"to_upload: {to_upload}")
 
         #insert into db
         conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute(insert_query, to_upload)
         conn.commit()
+        
+        # print(f"results: {process_results}")
+        # After saving the file, you can do additional processing if required
+        return {"image_lication": {file_location},
+                "results": process_results}
+    except Exception as e:
+        conn.rollback()
+        print(f"Exception: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
         cursor.close()
         conn.close()
-        
-        print(f"results: {process_results}")
-        # After saving the file, you can do additional processing if required
-        return {"info": f"file '{file.filename}' saved at '{file_location}'",
-                "results": process_results}
-    # except Exception as e:
-    #     print(f"Exception: {e}")
-    #     raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/uploadReceiptData/")
 async def upload_receipt_data(kwargs: dict):
@@ -206,14 +221,15 @@ async def upload_receipt_data(kwargs: dict):
         conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         user_id = kwargs.get("user_id")
-        receipt_data = kwargs.get("receipt_data")
-        print(f"inserting for  {user_id}")
-        insert_query = "INSERT INTO \"Receipts\" (user_id, receipt_data) VALUES (%s, %s)"
-        data_to_insert = (user_id, receipt_data)
-
+        receipt_data = kwargs.get("results")
+        receipt_data["status"] = "reviewed"
+        receipt_data["item_purchase"] = str(receipt_data["item_purchase"])
+        for key, value in receipt_data.items():
+            if value == "":
+                receipt_data[key] = None
 
         # Execute the query
-        cursor.execute(insert_query, data_to_insert)
+        cursor.execute(receipt_update_query, receipt_data)
         print("executed query")
         
         conn.commit()
@@ -221,9 +237,9 @@ async def upload_receipt_data(kwargs: dict):
         conn.close()
         return {"status": "success"}
     except Exception as e:
-        # conn.rollback()
+        conn.rollback()
         print(f"Exception: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         cursor.close()
-    #     conn.close()
+        conn.close()

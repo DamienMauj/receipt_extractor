@@ -33,7 +33,7 @@ Future<String> sendData(String url, Map<String, dynamic> data) async {
   Future<void> sendPicture(BuildContext context, XFile? _imageFile, String endpoint) async {
     if (_imageFile == null) return ;
 
-    try {
+    // try {
       final mimeTypeData = mime.lookupMimeType(_imageFile!.path, headerBytes: [0xFF, 0xD8])?.split('/');
       var request = http.MultipartRequest('POST', Uri.parse(endpoint));
 
@@ -54,8 +54,8 @@ Future<String> sendData(String url, Map<String, dynamic> data) async {
         print('Failed to upload picture');
         return ;
       }
-    } catch (e) {
-      print(e.toString());
-      return ;
-    }
+    // } catch (e) {
+    //   print(e.toString());
+    //   return ;
+    // }
   }

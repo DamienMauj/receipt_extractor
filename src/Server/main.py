@@ -12,6 +12,7 @@ import cv2
 import pytesseract
 from ultralytics import YOLO
 from model.functions.extract_receipt import extract_receipt
+from model.functions.llm_data_cleaning import generate_receipt_json
 
 log = logging.getLogger("uvicorn")
 
@@ -110,9 +111,40 @@ async def upload_image(file: UploadFile = File(...)):
         # Run your model
         results = extract_receipt(model, file_location)
 
+        process_results = generate_receipt_json(os.getenv("OPENAI_API_KEY"), results)
+
         # After saving the file, you can do additional processing if required
         return {"info": f"file '{file.filename}' saved at '{file_location}'",
-                "results": results}
+                "results": process_results}
     except Exception as e:
         print(f"Exception: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/uploadReceiptData/")
+async def upload_receipt_data(kwargs: dict):
+    try:
+        print(f"kwargs: {kwargs}")
+        conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        # user_id = kwargs.get("user_id")
+        # receipt_data = kwargs.get("receipt_data")
+        # print(f"inserting for  {user_id}")
+        # insert_query = "INSERT INTO \"Receipts\" (user_id, receipt_data) VALUES (%s, %s)"
+        # data_to_insert = (user_id, receipt_data)
+
+
+    #     # Execute the query
+    #     cursor.execute(insert_query, data_to_insert)
+    #     print("executed query")
+        
+    #     conn.commit()
+    #     cursor.close()
+    #     conn.close()
+        # return {"status": "success"}
+    except Exception as e:
+        # conn.rollback()
+        print(f"Exception: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+    #     conn.close()

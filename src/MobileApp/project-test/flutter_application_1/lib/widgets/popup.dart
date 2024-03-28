@@ -1,33 +1,99 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/services/network_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-
+import 'dart:convert'; // Import JSON decoder
 
 void showPopup(BuildContext context, String buttonText, String popupText) {
   TextEditingController textEditingController = TextEditingController(text: popupText);
   final TextEditingController _endpointController = TextEditingController(text: "http://${dotenv.env['CURRENT_IP']}:8000/uploadReceiptData/");
+  double _fontSize = 13;
+
+
+  Map<String, dynamic> response = json.decode(popupText);
+  Map<String, dynamic> result = response['results'] ?? {};
+  TextEditingController shopNameController = TextEditingController(text: result["Shop_Information"].toString());
+  TextEditingController dateController = TextEditingController(text: result["Time"].toString());
+  TextEditingController totalController = TextEditingController(text: result["Total"].toString());
+
+  Map<String, TextEditingController> nameControllers = {};
+  Map<String, TextEditingController> qtyControllersDict = {};
+  Map<String, TextEditingController> priceControllersDict = {};
+
+  
+  // List<Widget> itemFields = result["Item_purchase"].entries.map<Widget>((entry) {
+  //   String key = entry.key;
+  //   Map<String, dynamic> value = entry.value;
+  //   TextEditingController nameControler = TextEditingController(text: key);
+  //   qtyControllers[key] = TextEditingController(text: value['qty'].toString());
+  //   TextEditingController priceController = TextEditingController(text: value['price'].toString());
+
+  //   return Row(
+
+List<Widget> buildItemFields(Map<String, dynamic> items, Map<String, TextEditingController> nameControllers,Map<String, TextEditingController> qtyControllers, Map<String, TextEditingController> priceControllers) {
+  return items.entries.map<Widget>((entry) {
+    String key = entry.key;
+    Map<String, dynamic> value = entry.value;
+
+    nameControllers[key] = TextEditingController(text: key);
+    qtyControllers[key] = TextEditingController(text: value['qty'].toString());
+    priceControllers[key] = TextEditingController(text: value['price'].toString());
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(
+          flex: 4,
+          child: TextField(
+            controller: nameControllers[key],
+            decoration: InputDecoration(hintText: 'Name'),
+            style: TextStyle(
+              fontSize: _fontSize,
+            )
+          ),
+        ),
+        Flexible(
+          flex: 1,
+          child: Container(
+            color: Colors.red, // Add red background color
+            child: TextField(
+              controller: qtyControllers[key],
+              textAlign: TextAlign.center,
+              decoration: InputDecoration(hintText: 'Quantity'),
+              style: TextStyle(
+                fontSize: _fontSize,
+              ),
+            ),
+          ),
+        ),
+        Flexible(
+          flex: 2,
+          child: TextField(
+            textAlign: TextAlign.center,
+            controller: priceControllers[key],
+            decoration: InputDecoration(hintText: 'Price'),
+            style: TextStyle(fontSize: _fontSize,),
+          ),
+        ),
+      ],
+    );
+  }).toList();}
 
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
         title: Text('Popup'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min, // Use as little space as needed
-          children: [
-            Expanded(
-              child: TextField(
-                controller: textEditingController,
-                decoration: InputDecoration(
-                  hintText: 'Enter text here',
-                  border: OutlineInputBorder(), // Adds a border around the TextField
-                ),
-                maxLines: null, // Allows for unlimited lines
-                minLines: 5,  // Sets a minimum size for the text field
-              ),
-            ),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              buildBasicResponseField(shopNameController, "Shop Name", _fontSize),
+              buildBasicResponseField(dateController, "Date", _fontSize),
+              buildBasicResponseField(totalController, "Total", _fontSize),
+              ...buildItemFields(result["Item_purchase"], nameControllers, qtyControllersDict, priceControllersDict)
+              // Add other widgets here if needed
+            ],
+          ),
         ),
         actions: <Widget>[
           TextButton(
@@ -39,15 +105,33 @@ void showPopup(BuildContext context, String buttonText, String popupText) {
           TextButton(
             child: Text('Submit'),
             onPressed: () {
-              // Handle the edited text
-              String editedText = textEditingController.text;
-              // For example, print the edited text
-              print(editedText);
-              String endpoint = _endpointController.text; 
-              Map<String, dynamic> body = {'text': editedText};
-              sendData(endpoint, body);
+                Map<String, dynamic> updatedResult = {
+                "Shop_Information": shopNameController.text,
+                "Time": dateController.text,
+                "Total": totalController.text,
+                "Item_purchase": {}
+              };
 
+              for (var entry in result["Item_purchase"].entries) {
+                updatedResult["Item_purchase"][entry.key] = {
+                  "name": nameControllers[entry.key]?.text,
+                  "qty": qtyControllersDict[entry.key]?.text,
+                  "price": priceControllersDict[entry.key]?.text
+                };
+              }
+
+              String updatedJson = json.encode({
+                "results": updatedResult
+              });
+
+              // Here, you can use updatedJson as you need
+              print(updatedJson); // For debugging
+              // Handle the submission logic here
+              sendData(_endpointController.text, json.decode(updatedJson));
               Navigator.of(context).pop();
+
+
+
             },
           ),
         ],
@@ -55,3 +139,20 @@ void showPopup(BuildContext context, String buttonText, String popupText) {
     },
   );
 }
+
+Widget buildBasicResponseField(TextEditingController textController, String category,  double _fontSize) {
+                return Row(
+                  children: [
+                    Text(category + ': '),
+                    Flexible(
+                      child: TextField(
+                        controller: textController,
+                        decoration: InputDecoration(hintText: category),
+                        style: TextStyle(
+                          fontSize: _fontSize,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }

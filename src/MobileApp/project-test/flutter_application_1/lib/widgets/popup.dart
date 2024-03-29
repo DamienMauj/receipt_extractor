@@ -157,6 +157,21 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
             style: TextStyle(fontSize: _fontSize,),
           ),
         ),
+        IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              // Remove item row and associated controllers
+              setState(() {
+                nameControllersDict[key]?.dispose(); // Dispose of name controller
+                qtyControllersDict[key]?.dispose(); // Dispose of quantity controller
+                priceControllersDict[key]?.dispose(); // Dispose of price controller
+
+                nameControllersDict.remove(key);
+                qtyControllersDict.remove(key);
+                priceControllersDict.remove(key);
+              });
+            },
+          ),
       ],
     );
   }
@@ -198,6 +213,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
           onPressed: () {
               Map<String, dynamic> updatedResult = {
               "shop_information": shopNameController.text,
+              "type": typeController.text, // "type" is a reserved keyword in Dart, consider renaming this field to something like "purchase_type
               "time": dateController.text,
               "total": totalController.text,
               "item_purchase": {}

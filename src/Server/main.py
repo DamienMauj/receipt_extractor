@@ -2,17 +2,15 @@ from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel, EmailStr
 from dotenv import load_dotenv
 import os
-import psycopg2
 from psycopg2.extras import RealDictCursor
 from helper import get_db_connection
 import uuid
 import logging
-import numpy
-import cv2
-import pytesseract
 from ultralytics import YOLO
 from model.functions.extract_receipt import extract_receipt
 from model.functions.llm_data_cleaning import generate_receipt_json
+from dateutil import parser
+
 
 log = logging.getLogger("uvicorn")
 
@@ -153,7 +151,7 @@ async def get_user(kwargs: dict):
 
 @app.post("/uploadPicture/")
 async def upload_image(file: UploadFile = File(...)):
-    try:
+    # try:
         file_location = f"./uploads/{file.filename}"  # Define file location
 
         # Save the uploaded file to a directory
@@ -201,18 +199,21 @@ async def upload_image(file: UploadFile = File(...)):
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute(insert_query, to_upload)
         conn.commit()
+
+        cursor.close()
+        conn.close()
         
         # print(f"results: {process_results}")
         # After saving the file, you can do additional processing if required
         return {"image_lication": {file_location},
                 "results": process_results}
-    except Exception as e:
-        conn.rollback()
-        print(f"Exception: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        cursor.close()
-        conn.close()
+    # except Exception as e:
+    #     conn.rollback()
+    #     print(f"Exception: {e}")
+    #     raise HTTPException(status_code=500, detail=str(e))
+    # finally:
+    #     cursor.close()
+    #     conn.close()
 
 @app.post("/uploadReceiptData/")
 async def upload_receipt_data(kwargs: dict):

@@ -40,8 +40,6 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('A random idea:'),
-          BigCard(pair: pair),
           TextField(
             controller: _endpointController,
             decoration: InputDecoration(

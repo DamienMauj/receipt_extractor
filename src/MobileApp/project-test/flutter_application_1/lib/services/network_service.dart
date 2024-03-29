@@ -48,7 +48,7 @@ Future<String> sendData(String url, Map<String, dynamic> data) async {
 
       if (response.statusCode == 200) {
         print('Picture uploaded');
-        showPopup(context, "uplaod picture", response.body);
+        showPopup(context, "uplaod picture", response.body, false);
         return ;
       } else {
         print('Failed to upload picture');
@@ -60,11 +60,3 @@ Future<String> sendData(String url, Map<String, dynamic> data) async {
     // }
   }
 
-void showPopup(BuildContext context, String buttonText, String popupText) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return ReceiptPopup(buttonText: buttonText, popupText: popupText);
-    },
-  );
-}

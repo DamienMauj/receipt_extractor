@@ -86,8 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Text('Send'),
           ),
           // TextPopupButton(buttonText: "buttonText", popupText: "popupText"),
-          CustomButton(buttonText: "buttonText", onPressCallback: () {
-            showPopup(context, "Button Text", "This is the popup text");
+          CustomButton(buttonText: "new entry", onPressCallback: () {
+            showPopup(context, "Button Text", "", true);
           }),
           Text('Response: $_responseBody'),
         ],

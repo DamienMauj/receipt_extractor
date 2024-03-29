@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/services/network_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'dart:convert'; // Import JSON decoder
+import 'dart:convert';
+import 'package:uuid/uuid.dart';
+
 
 
 class ReceiptPopup extends StatefulWidget {
   final String buttonText;
+  final bool isNewReceipt; 
   final String popupText;
-  // final double _fontSize = 13;
-  final TextEditingController _endpointController = TextEditingController(text: "http://${dotenv.env['CURRENT_IP']}:8000/uploadReceiptData/");
 
-
-  ReceiptPopup({Key? key, required this.buttonText, required this.popupText}) : super(key: key);
+  ReceiptPopup({Key? key, required this.buttonText, this.popupText = '', this.isNewReceipt = false}) : super(key: key);
 
   @override
   _ReceiptPopupState createState() => _ReceiptPopupState();
@@ -20,18 +20,41 @@ class ReceiptPopup extends StatefulWidget {
 class _ReceiptPopupState extends State<ReceiptPopup> {
   late Map<String, dynamic> result;
   late TextEditingController shopNameController;
+  late TextEditingController typeController;
   late TextEditingController dateController;
   late TextEditingController totalController;
   late Map<String, TextEditingController> nameControllersDict;
   late Map<String, TextEditingController> qtyControllersDict;
   late Map<String, TextEditingController> priceControllersDict;
 
-  @override
+    @override
   void initState() {
     super.initState();
+    
+    if (widget.isNewReceipt) {
+      _initNewReceipt();
+    } else {
+      _initFromExistingReceipt();
+    }
+  }
+
+  void _initNewReceipt() {
+    shopNameController = TextEditingController();
+    typeController = TextEditingController();
+    dateController = TextEditingController();
+    totalController = TextEditingController();
+    
+    result = {"receipt_id": Uuid().v1().toString()};
+    nameControllersDict = {};
+    qtyControllersDict = {};
+    priceControllersDict = {};
+  }
+
+  void _initFromExistingReceipt() {
     Map<String, dynamic> response = json.decode(widget.popupText);
     result = response['results'] ?? {};
     shopNameController = TextEditingController(text: result["shop_information"].toString());
+    typeController = TextEditingController(text: result["type"].toString());
     dateController = TextEditingController(text: result["time"].toString());
     totalController = TextEditingController(text: result["total"].toString());
 
@@ -40,6 +63,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
     priceControllersDict = {};
     _initItemFields();
   }
+
 
   void _initItemFields() {
     result["item_purchase"]?.forEach((key, value) {
@@ -151,6 +175,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
           children: [
             // Your existing buildBasicResponseField calls...
             buildBasicResponseField(shopNameController, "Shop Name", _fontSize),
+            buildBasicResponseField(typeController, "Type", _fontSize),
             buildBasicResponseField(dateController, "Day/Month/Year", _fontSize),
             buildBasicResponseField(totalController, "total", _fontSize),
             ..._buildItemFields(_fontSize),
@@ -203,4 +228,14 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
       ],
     );
   }
+}
+
+
+void showPopup(BuildContext context, String buttonText, String popupText, bool isNewReceipt) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return ReceiptPopup(buttonText: buttonText ,popupText: popupText, isNewReceipt: isNewReceipt);
+    },
+  );
 }

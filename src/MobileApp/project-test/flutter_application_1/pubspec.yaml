@@ -43,6 +43,7 @@ dependencies:
   mime: ^1.0.5
   fl_chart: ^0.55.2
   image_picker: ^1.0.7
+  uuid: ^4.3.3
 
 
 

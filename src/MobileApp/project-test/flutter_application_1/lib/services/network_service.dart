@@ -59,3 +59,12 @@ Future<String> sendData(String url, Map<String, dynamic> data) async {
     //   return ;
     // }
   }
+
+void showPopup(BuildContext context, String buttonText, String popupText) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return ReceiptPopup(buttonText: buttonText, popupText: popupText);
+    },
+  );
+}

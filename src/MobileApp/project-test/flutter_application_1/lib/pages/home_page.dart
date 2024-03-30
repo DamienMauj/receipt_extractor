@@ -9,6 +9,9 @@ import 'package:flutter_application_1/widgets/big_card.dart';
 import 'package:flutter_application_1/widgets/popup.dart';
 import 'package:flutter_application_1/widgets/custom_button.dart';
 import 'package:flutter_application_1/pages/camera_page.dart';
+import 'package:flutter_application_1/pages/list_page.dart';
+import 'package:flutter_application_1/widgets/navigation_bar.dart'; // Import your custom widget
+
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -20,6 +23,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _endpointController = TextEditingController(text: "http://${dotenv.env['CURRENT_IP']}:8000/users/");
   final TextEditingController _bodyController = TextEditingController(text: '{"user_id" : "f0a39253-df87-4f42-b8da-a9c893544b2c"}');
   String _responseBody = '';
+  int _selectedIndex = 0;
 
   @override
   void dispose() {
@@ -52,6 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
               labelText: 'Body',
             ),
           ),
+
           ElevatedButton(
             onPressed: () {
               Navigator.push(
@@ -61,6 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             child: Text('Go to camera Page'),
           ),
+
           ElevatedButton(
             onPressed: () {
               Navigator.push(
@@ -70,6 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             child: Text('Go to graph Page'),
           ),
+
           ElevatedButton(
             onPressed: () async {
               print('button pressed!');
@@ -83,13 +90,24 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             child: Text('Send'),
           ),
+
           // TextPopupButton(buttonText: "buttonText", popupText: "popupText"),
           CustomButton(buttonText: "new entry", onPressCallback: () {
             showPopup(context, "Button Text", "", true);
           }),
-          Text('Response: $_responseBody'),
+
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ReceiptsPage()),
+              );
+            },
+            child: Text('list Page'),
+          ),
         ],
       ),
+      bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: _selectedIndex), // Use your custom widget
     );
   }
 }

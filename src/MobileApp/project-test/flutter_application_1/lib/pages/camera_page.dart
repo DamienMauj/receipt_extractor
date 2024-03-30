@@ -6,6 +6,8 @@ import 'package:flutter_application_1/widgets/camera.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_application_1/widgets/camera_roll.dart';
+import 'package:flutter_application_1/widgets/navigation_bar.dart';
+
 
 
 class CameraPage extends StatefulWidget {
@@ -16,6 +18,7 @@ class CameraPage extends StatefulWidget {
 class _CameraPageState extends State<CameraPage> {
   XFile? _imageFile;
   final ImagePicker _picker = ImagePicker();
+  bool _isUploading = false;
 
 
   void _showCameraPopup() {
@@ -59,6 +62,21 @@ class _CameraPageState extends State<CameraPage> {
     }
   }
 
+    Future<void> _uploadAndSendImage() async {
+    setState(() {
+      _isUploading = true;
+    });
+    try {
+      await sendPicture(context, _imageFile, "http://${dotenv.env['CURRENT_IP']}:8000/uploadPicture/");
+      // Handle response or any other logic here
+    } catch (e) {
+      // Handle error here
+    } finally {
+      setState(() {
+        _isUploading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,16 +107,25 @@ class _CameraPageState extends State<CameraPage> {
                     child: Text('Open Gallery'),
                   ),
                   if (_imageFile != null)
-                    ElevatedButton.icon(
-                      onPressed: () { sendPicture(context, _imageFile, "http://${dotenv.env['CURRENT_IP']}:8000/uploadPicture/"); },
-                      icon: Icon(Icons.upload),
-                      label: Text('Upload Picture'),
-                    ),
+                  ElevatedButton.icon(
+                    onPressed: _isUploading ? null : _uploadAndSendImage, // Disable button when uploading
+                    icon: _isUploading
+                        ? SizedBox(
+                            height: 20.0,
+                            width: 20.0,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.0,
+                            ),
+                          )
+                        : Icon(Icons.upload),
+                    label: Text('Upload Picture'),
+                  ),
                 ],
               ),
           ],
         ),
       ),
+      bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: 1),
     );
   }
   

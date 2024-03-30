@@ -5,6 +5,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_application_1/pages/camera_page.dart';
 import 'package:flutter_application_1/pages/graph_page.dart';
 import 'package:flutter_application_1/pages/home_page.dart';
+import 'package:flutter_application_1/widgets/navigation_bar.dart';
+
 
 
 class GraphPage extends StatefulWidget {
@@ -129,6 +131,7 @@ class _GraphPageState extends State<GraphPage> {
           ],
         ),
       ),
+      bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: 2),
     );
   }
 }

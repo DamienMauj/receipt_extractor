@@ -244,3 +244,23 @@ async def upload_receipt_data(kwargs: dict):
     finally:
         cursor.close()
         conn.close()
+
+@app.get("/getReceipt/")
+async def get_receipt_data():
+    try:
+        conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        select_query = "SELECT receipt_id, type, shop_information, time, total, item_purchase FROM receipt WHERE status = 'reviewed'"
+        cursor.execute(select_query)
+        return_data = cursor.fetchall()
+        print(f"return_data: {return_data}")
+        cursor.close()
+        conn.close()
+        return return_data
+    except Exception as e:
+        conn.rollback()
+        print(f"Exception: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+        conn.close()

@@ -16,7 +16,7 @@ class AnimatedLineChartWidget extends StatelessWidget {
     List<FlSpot> spots = _getSpotsFromData(data);
 
     return Container(
-      padding: const EdgeInsets.all(50),
+      padding: const EdgeInsets.all(10),
       width: double.infinity,
       height: double.infinity, // Adjust height as necessary
       child: fl_Chart.LineChart(

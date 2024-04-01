@@ -8,6 +8,7 @@ import 'package:flutter_application_1/widgets/analitics/pie_chart.dart';
 import 'package:flutter_application_1/classes/receipt_class.dart';
 import 'package:flutter_application_1/classes/data_service_class.dart';
 import 'package:flutter_application_1/widgets/analitics/line_chart.dart';
+import 'package:flutter_application_1/widgets/analitics/line_chart_test.dart' as test;
 
 
 
@@ -245,7 +246,7 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
           return TabBarView(
             controller: _tabController,
             children: [
-              AnimatedLineChartWidget(data: snapshot.data!), // Line chart with data
+              test.AnimatedLineChartWidget(data: snapshot.data!), // Line chart with data
               BarChartWithSelector(data: snapshot.data!),  // Bar chart with the same data
               pieChart(),  // Pie chart with the same data
             ],

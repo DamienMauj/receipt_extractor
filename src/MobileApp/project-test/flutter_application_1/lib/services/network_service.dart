@@ -60,3 +60,33 @@ Future<String> sendData(String url, Map<String, dynamic> data) async {
     // }
   }
 
+  // Function to get data from the server has a dictionary
+  Future<Map<String, dynamic>> getData(String url) async {
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      // If the server returns a 200 OK response,
+      // then parse the JSON.
+      print('Data received successfully');
+      // print("data: ${response.body}");
+
+      // put the list of dictionary into one data dictionary
+      final List<dynamic> dataList = jsonDecode(response.body);
+      final Map<String, dynamic> data = {};
+      for (var item in dataList) {
+        if (item is Map<String, dynamic>) {
+          data.addAll(item);
+        }
+      }
+      // return data;
+
+
+
+      return data;
+    } else {
+      // If the server returns an unsuccessful response code,
+      // then throw an exception.
+      print('Failed to receive data');
+      return {};
+    }
+  }

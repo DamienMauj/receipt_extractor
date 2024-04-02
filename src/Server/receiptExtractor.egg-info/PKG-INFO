@@ -1,0 +1,17 @@
+Metadata-Version: 2.1
+Name: receiptExtractor
+Version: 0.1
+Requires-Dist: pydantic[email]
+Requires-Dist: fastapi==0.109.0
+Requires-Dist: pip-chill==1.0.3
+Requires-Dist: psycopg2==2.9.9
+Requires-Dist: python-dotenv==1.0.1
+Requires-Dist: uvicorn==0.27.0
+Requires-Dist: websockets==12.0
+Requires-Dist: python-multipart
+Requires-Dist: opencv-python
+Requires-Dist: pytesseract
+Requires-Dist: ultralytics
+Requires-Dist: openai
+Requires-Dist: httpx
+Requires-Dist: pytest

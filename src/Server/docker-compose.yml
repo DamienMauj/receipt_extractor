@@ -14,8 +14,8 @@ services:
   db:
     image: postgres:latest
     volumes:
-      - ./data:/var/lib/postgresql/data
-      - ./postgres_init:/docker-entrypoint-initdb.d 
+      - ./receipt_server/data:/var/lib/postgresql/data
+      - ./receipt_server/postgres_init:/docker-entrypoint-initdb.d 
     environment:
       POSTGRES_DB: receipt_extraction
       POSTGRES_USER: user

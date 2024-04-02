@@ -3,7 +3,7 @@ val: "/Users/damienmaujean/Library/CloudStorage/OneDrive-Personal/university/Mid
 test: "/Users/damienmaujean/Library/CloudStorage/OneDrive-Personal/university/MiddleSex University/Year 3/CST3990 Individual Project/experimentation/receipt extraction model.v2i.yolov8/test/images"
 
 nc: 4
-names: ['date', 'item_purshase', 'shop_informaton', 'total']
+names: ['date', 'item_purchase', 'shop_information', 'total']
 
 roboflow:
   workspace: damienreceipt

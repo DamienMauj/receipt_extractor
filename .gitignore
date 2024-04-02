@@ -4,3 +4,4 @@ src/MobileApp/flutter/*
 **/runs/**
 **/uploads/**
 **/__pycache__/**
+**/data/**

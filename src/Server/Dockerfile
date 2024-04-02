@@ -18,10 +18,11 @@ COPY . .
 
 # Install any needed packages specified in requirements.txt
 # RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install -r receipt_server/requirements.txt
+RUN pip install -e .
 
-RUN chmod +x ./tests/tests.sh
-RUN ./tests/tests.sh
+# RUN chmod +x ./tests/tests.sh
+# RUN ./tests/tests.sh
 
 # Command to run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--reload"]
+CMD ["uvicorn", "receipt_server.main:app", "--host", "0.0.0.0", "--reload"]

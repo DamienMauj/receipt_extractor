@@ -28,7 +28,7 @@ Your system should perform the following tasks:
 Clean any small errors in the OCR results, such as correcting single-character mistakes.
 If the quantity of a product is not explicitly provided but mentioned multiple times, count the number of occurrences to estimate the quantity.
 add the field type which will categories the receipt into category (grocery, gaz, restaurant,...)
-If a field is missing put None and nothing else, except for type field that you should guess out of the receipt data.
+If a field is missing put Null and nothing else, except for type field that you should guess out of the receipt data.
 Format the output into a JSON structure with the following schema:
 {{
   "shop_information": "<Shop name>",
@@ -56,48 +56,48 @@ You have to respond in the json format and the json format only without saying a
 
     prompt = prompt.format(input_text=input_text)
 
-    # print(f"pro÷mpt: {prompt}")
+    print(f"prompt: {prompt}")
     
-    # response = openai.chat.completions.create(
-    #     model="gpt-3.5-turbo",
-    #     messages= [{
-    #       "role": "user",
-    #       "content": prompt
-    #     }]
-    # )
-    # extracted_response = response.choices[0].message.content
-    # print(f"response: {extracted_response}")
+    response = openai.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages= [{
+          "role": "user",
+          "content": prompt
+        }]
+    )
+    extracted_response = response.choices[0].message.content
+    print(f"response: {extracted_response}")
     
     # parse json
-    # extracted_response = json.loads(extracted_response)
-    extracted_response = {
-      "Shop_Information": "LONDON SUPERMARKET LTD",
-      "Type": "Grocery",
-      "Total": "",
-      "Time": "",
-      "Item_purchase": {
-        "DISQUE BE PIZZA A GARNIR": {
-          "qty": 1,
-          "price": 4.00
-        },
-        "ESPUNA 80G TRAD CHORIZO": {
-          "qty": 1,
-          "price": 58.00
-        },
-        "DENNY WHITE BUT .MUSHROOM": {
-          "qty": 1,
-          "price": 149.95
-        },
-        "CH COCA ZERO 1L": {
-          "qty": 1,
-          "price": 51.00
-        },
-        "VEG HE 250G RAINBOW TOMATO": {
-          "qty": 1,
-          "price": 138.00
-        }
-      }
-    }
+    extracted_response = json.loads(extracted_response)
+    # extracted_response = {
+    #   "Shop_Information": "LONDON SUPERMARKET LTD",
+    #   "Type": "Grocery",
+    #   "Total": "",
+    #   "Time": "",
+    #   "Item_purchase": {
+    #     "DISQUE BE PIZZA A GARNIR": {
+    #       "qty": 1,
+    #       "price": 4.00
+    #     },
+    #     "ESPUNA 80G TRAD CHORIZO": {
+    #       "qty": 1,
+    #       "price": 58.00
+    #     },
+    #     "DENNY WHITE BUT .MUSHROOM": {
+    #       "qty": 1,
+    #       "price": 149.95
+    #     },
+    #     "CH COCA ZERO 1L": {
+    #       "qty": 1,
+    #       "price": 51.00
+    #     },
+    #     "VEG HE 250G RAINBOW TOMATO": {
+    #       "qty": 1,
+    #       "price": 138.00
+    #     }
+    #   }
+    # }
 
     #make the dictionary all lowercase
     return_data = {}

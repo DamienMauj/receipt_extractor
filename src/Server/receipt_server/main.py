@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, status, Response
 from pydantic import BaseModel, EmailStr
 from dotenv import load_dotenv
 import os
@@ -9,13 +9,18 @@ import logging
 from ultralytics import YOLO
 from receipt_server.model.functions.extract_receipt import extract_receipt
 from receipt_server.model.functions.llm_data_cleaning import generate_receipt_json
+from receipt_server.model.functions.data_cleaning import clean_receipt_data
 from dateutil import parser
+from receipt_server.path import MODEL_PATH, UPLOAD_PICTURE_PATH
+from PIL import Image
+from io import BytesIO
+import os
 
 log = logging.getLogger("uvicorn")
 
 load_dotenv()
 
-model = YOLO("receipt_server/model/versions/0.2/receipt_extractor.pt")
+model = YOLO(MODEL_PATH)
 log.info("INFO: model loaded")
 
 DB_HOST = os.getenv('DB_HOST')
@@ -97,7 +102,7 @@ async def create_item(user: User):
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         user_id = uuid.uuid4()
         print("executing query")
-        insert_query = "INSERT INTO \"Users\" (user_id, email, password) VALUES (%s, %s, %s)"
+        insert_query = "INSERT INTO \"users\" (user_id, email, password) VALUES (%s, %s, %s)"
         data_to_insert = (str(user_id), user.email, user.password)
 
         # Execute the query
@@ -119,17 +124,17 @@ async def create_item(user: User):
         conn.close()
 
 
-@app.post("/users/")
-async def get_user(kwargs: dict):
+@app.post("/users/", status_code=200)
+async def get_user(kwargs: dict, response: Response):
 
     try:
         print(f"kwargs: {kwargs}")
         conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        user_id = kwargs.get("user_id")
-        print(f"fetching for  {user_id}")
-        select_query = "SELECT * FROM \"Users\" WHERE user_id = %s"
-        data_to_select = (user_id,)
+        email = kwargs.get("email")
+        print(f"fetching for  {email}")
+        select_query = "SELECT * FROM \"users\" WHERE email = %s"
+        data_to_select = (email,)
 
         # Execute the query
         cursor.execute(select_query, data_to_select)
@@ -137,9 +142,11 @@ async def get_user(kwargs: dict):
         
         return_data = cursor.fetchall()
         print(f"return_data: {return_data}")
-        cursor.close()
-        conn.close()
-        return return_data
+        if return_data:
+            return return_data[0]
+        else:
+            response.status_code = status.HTTP_204_NO_CONTENT
+            return {"detail": "User not found"}         
     except Exception as e:
         conn.rollback()
         print(f"Exception: {e}")
@@ -151,11 +158,18 @@ async def get_user(kwargs: dict):
 @app.post("/uploadPicture/")
 async def upload_image(file: UploadFile = File(...)):
     # try:
-        file_location = f"./receipt_server/uploads/{file.filename}"  # Define file location
+        # file_location = f"./receipt_server/uploads/{file.filename}"  # Define file location
+        file_location = os.path.join(UPLOAD_PICTURE_PATH, file.filename)
 
-        # Save the uploaded file to a directory
-        with open(file_location, "wb+") as file_object:
-            file_object.write(file.file.read())
+        contents = await file.read()
+        image = Image.open(BytesIO(contents))
+
+        # Resize the image
+        resized_image = image.resize((640,640))
+
+        # Save the resized image to the file location
+        with open(file_location, "wb") as file_object:
+            resized_image.save(file_object, format=image.format)
 
         # print(f"file '{file.filename}' saved at '{file_location}'")
 
@@ -164,12 +178,13 @@ async def upload_image(file: UploadFile = File(...)):
 
         process_results = generate_receipt_json(os.getenv("OPENAI_API_KEY"), results)
 
+        clean_data = clean_receipt_data(process_results)
         # generate uuid for receipt base on the receipt name
-        process_results["receipt_id"] = str(uuid.uuid4())
-        process_results["status"] = "pending"
-        process_results["type"] = "grocery"
+        clean_data["receipt_id"] = str(uuid.uuid4())
+        clean_data["status"] = "pending"
+        # process_results["type"] = "grocery"
         
-        to_upload = process_results.copy()
+        to_upload = clean_data.copy()
         to_upload["item_purchase"] = str(to_upload["item_purchase"])
 
         # for item in result put them into to_uplaod dict with while adding raw at the key
@@ -204,8 +219,8 @@ async def upload_image(file: UploadFile = File(...)):
         
         # print(f"results: {process_results}")
         # After saving the file, you can do additional processing if required
-        return {"image_lication": {file_location},
-                "results": process_results}
+        return {"image_location": {file_location},
+                "results": clean_data}
     # except Exception as e:
     #     conn.rollback()
     #     print(f"Exception: {e}")

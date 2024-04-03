@@ -157,7 +157,7 @@ async def get_user(kwargs: dict, response: Response):
 
 @app.post("/uploadPicture/")
 async def upload_image(file: UploadFile = File(...)):
-    # try:
+    try:
         # file_location = f"./receipt_server/uploads/{file.filename}"  # Define file location
         file_location = os.path.join(UPLOAD_PICTURE_PATH, file.filename)
 
@@ -185,17 +185,17 @@ async def upload_image(file: UploadFile = File(...)):
         # process_results["type"] = "grocery"
         
         to_upload = clean_data.copy()
-        to_upload["item_purchase"] = str(to_upload["item_purchase"])
+        to_upload["item_purchase"] = str(to_upload["item_purchase"]).replace("'", "\"")
 
         # for item in result put them into to_uplaod dict with while adding raw at the key
         for key, value in results.items():
             ###### TO BE CHANGE IN THE MODEL PREDICTION ####### 
-            if key == "shop_informaton":
-                to_upload["raw_shop_information"] = value
-            elif key == "item_purshase":
-                to_upload["raw_item_purchase"] = value
-            else: 
-                to_upload[f"raw_{key}"] = value
+            # if key == "shop_informaton":
+            #     to_upload["raw_shop_information"] = value
+            # elif key == "item_purshase":
+            #     to_upload["raw_item_purchase"] = value
+            # else: 
+            to_upload[f"raw_{key}"] = value
 
         for key in receipt_table_column:
             if key not in to_upload:
@@ -217,17 +217,16 @@ async def upload_image(file: UploadFile = File(...)):
         cursor.close()
         conn.close()
         
-        # print(f"results: {process_results}")
         # After saving the file, you can do additional processing if required
         return {"image_location": {file_location},
                 "results": clean_data}
-    # except Exception as e:
-    #     conn.rollback()
-    #     print(f"Exception: {e}")
-    #     raise HTTPException(status_code=500, detail=str(e))
-    # finally:
-    #     cursor.close()
-    #     conn.close()
+    except Exception as e:
+        conn.rollback()
+        print(f"Exception: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.post("/uploadReceiptData/")
 async def upload_receipt_data(kwargs: dict):
@@ -238,7 +237,7 @@ async def upload_receipt_data(kwargs: dict):
         user_id = kwargs.get("user_id")
         receipt_data = kwargs.get("results")
         receipt_data["status"] = "reviewed"
-        receipt_data["item_purchase"] = str(receipt_data["item_purchase"])
+        receipt_data["item_purchase"] = str(receipt_data["item_purchase"]).replace("'", "\"")
         for key, value in receipt_data.items():
             if value == "":
                 receipt_data[key] = None
@@ -264,7 +263,7 @@ async def get_receipt_data():
     try:
         conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        select_query = "SELECT receipt_id, type, shop_information, time, total, item_purchase FROM receipt WHERE status = 'reviewed'"
+        select_query = "SELECT receipt_id, type, shop_information, time, total, item_purchase FROM receipt WHERE status = 'reviewed' ORDER BY time DESC"
         cursor.execute(select_query)
         return_data = cursor.fetchall()
         print(f"return_data: {return_data}")

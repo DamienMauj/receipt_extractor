@@ -11,6 +11,7 @@ class ReceiptPopup extends StatefulWidget {
   final bool isNewReceipt; 
   final String popupText;
 
+
   ReceiptPopup({Key? key, required this.buttonText, this.popupText = '', this.isNewReceipt = false}) : super(key: key);
 
   @override
@@ -26,6 +27,8 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
   late Map<String, TextEditingController> nameControllersDict;
   late Map<String, TextEditingController> qtyControllersDict;
   late Map<String, TextEditingController> priceControllersDict;
+  final _formKey = GlobalKey<FormState>();
+
 
     @override
   void initState() {
@@ -99,12 +102,16 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
             Text(category + ': '),
             SizedBox(width: 8), // Add some horizontal space between text and TextField
             Expanded(
-              child: TextField(
+              child: TextFormField(
                 controller: textController,
                 decoration: InputDecoration(hintText: category),
-                style: TextStyle(
-                  fontSize: _fontSize,
-                ),
+                style: TextStyle(fontSize: _fontSize,),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter $category';
+                  }
+                  return null;
+                },
               ),
             ),
           ],
@@ -185,21 +192,24 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
     return AlertDialog(
       title: Text('Popup'),
       content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Your existing buildBasicResponseField calls...
-            buildBasicResponseField(shopNameController, "Shop Name", _fontSize),
-            buildBasicResponseField(typeController, "Type", _fontSize),
-            buildBasicResponseField(dateController, "Day/Month/Year", _fontSize),
-            buildBasicResponseField(totalController, "total", _fontSize),
-            ..._buildItemFields(_fontSize),
-            ElevatedButton(
-              onPressed: _addItem,
-              child: Text('Add Item'),
-            ),
-          ],
-        ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Your existing buildBasicResponseField calls...
+              buildBasicResponseField(shopNameController, "Shop Name", _fontSize),
+              buildBasicResponseField(typeController, "Type", _fontSize),
+              buildBasicResponseField(dateController, "Day/Month/Year", _fontSize),
+              buildBasicResponseField(totalController, "total", _fontSize),
+              ..._buildItemFields(_fontSize),
+              ElevatedButton(
+                onPressed: _addItem,
+                child: Text('Add Item'),
+              ),
+            ],
+          ),
+        )
       ),
       actions: <Widget>[
         TextButton(
@@ -211,34 +221,38 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
         TextButton(
           child: Text('Submit'),
           onPressed: () {
-              Map<String, dynamic> updatedResult = {
-              "shop_information": shopNameController.text,
-              "type": typeController.text, // "type" is a reserved keyword in Dart, consider renaming this field to something like "purchase_type
-              "time": dateController.text,
-              "total": totalController.text,
-              "item_purchase": {}
-            };
-
-            for (var entry in nameControllersDict.entries) {
-              updatedResult["item_purchase"][entry.value.text] = {
-                "name": nameControllersDict[entry.key]?.text,
-                "qty": qtyControllersDict[entry.key]?.text,
-                "price": priceControllersDict[entry.key]?.text
+            if (_formKey.currentState!.validate()) {
+    // Proceed with the form submission logic if all fields are valid
+    
+                Map<String, dynamic> updatedResult = {
+                "shop_information": shopNameController.text,
+                "type": typeController.text, // "type" is a reserved keyword in Dart, consider renaming this field to something like "purchase_type
+                "time": dateController.text,
+                "total": totalController.text,
+                "item_purchase": {}
               };
+
+              for (var entry in nameControllersDict.entries) {
+                updatedResult["item_purchase"][entry.value.text] = {
+                  "name": nameControllersDict[entry.key]?.text,
+                  "qty": qtyControllersDict[entry.key]?.text,
+                  "price": priceControllersDict[entry.key]?.text
+                };
+              }
+
+              updatedResult["receipt_id"] = result["receipt_id"];
+              updatedResult["type"] = result["type"];
+
+              String updatedJson = json.encode({
+                "results": updatedResult
+              });
+
+              // Here, you can use updatedJson as you need
+              print(updatedJson); // For debugging
+              // Handle the submission logic here
+              sendData(_endpointController.text, json.decode(updatedJson));
+              Navigator.of(context).pop();
             }
-
-            updatedResult["receipt_id"] = result["receipt_id"];
-            updatedResult["type"] = result["type"];
-
-            String updatedJson = json.encode({
-              "results": updatedResult
-            });
-
-            // Here, you can use updatedJson as you need
-            print(updatedJson); // For debugging
-            // Handle the submission logic here
-            sendData(_endpointController.text, json.decode(updatedJson));
-            Navigator.of(context).pop();
           },
         ),
       ],

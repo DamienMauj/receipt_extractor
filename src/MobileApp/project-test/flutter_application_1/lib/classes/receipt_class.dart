@@ -6,7 +6,7 @@ class Receipt {
   final String type;
   final DateTime date;
   final double total;
-  final Map<String, dynamic> item_purchase;
+  final Map<String, dynamic>? item_purchase;
   // other fields...
 
   Receipt({required this.receipt_id,
@@ -14,7 +14,7 @@ class Receipt {
              required this.type,
              required this.date,
              required this.total,
-             required this.item_purchase,
+             this.item_purchase,
              });
 
   factory Receipt.fromJson(Map<String, dynamic> json) {

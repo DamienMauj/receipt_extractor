@@ -24,8 +24,8 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
         home: MyHomePage(),
+        debugShowCheckedModeBanner: false, // Remove debug tag
       ),
     );
   }
 }
-

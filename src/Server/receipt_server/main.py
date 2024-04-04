@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, status, Response
+from fastapi import FastAPI, HTTPException, UploadFile, File, status, Response, Form
 from pydantic import BaseModel, EmailStr
 from dotenv import load_dotenv
 import os
@@ -32,6 +32,7 @@ app = FastAPI()
 
 receipt_table_column = [
     "receipt_id", 
+    "user_id",
     "type", 
     "shop_information", 
     "time", 
@@ -46,6 +47,7 @@ receipt_table_column = [
 receipt_insert_query = insert_query = """
 INSERT INTO receipt (
     receipt_id, 
+    user_id,
     type, 
     shop_information, 
     time, 
@@ -58,6 +60,7 @@ INSERT INTO receipt (
     status
 ) VALUES (
     %(receipt_id)s, 
+    %(user_id)s,
     %(type)s, 
     %(shop_information)s, 
     %(time)s, 
@@ -81,7 +84,8 @@ SET
     item_purchase = %(item_purchase)s,
     status = %(status)s
 WHERE
-    receipt_id = %(receipt_id)s
+    receipt_id = %(receipt_id)s AND 
+    user_id = %(user_id)s
 """
 
 @app.get("/hello")
@@ -156,11 +160,12 @@ async def get_user(kwargs: dict, response: Response):
         conn.close()
 
 @app.post("/uploadPicture/")
-async def upload_image(file: UploadFile = File(...)):
+async def upload_image(user_id: str = Form(...), file: UploadFile = File(...)):
     try:
         # file_location = f"./receipt_server/uploads/{file.filename}"  # Define file location
         file_location = os.path.join(UPLOAD_PICTURE_PATH, file.filename)
-
+        print("User ID:", user_id)
+ 
         contents = await file.read()
         image = Image.open(BytesIO(contents))
 
@@ -181,6 +186,7 @@ async def upload_image(file: UploadFile = File(...)):
         clean_data = clean_receipt_data(process_results)
         # generate uuid for receipt base on the receipt name
         clean_data["receipt_id"] = str(uuid.uuid4())
+        clean_data["user_id"] = user_id
         clean_data["status"] = "pending"
         # process_results["type"] = "grocery"
         
@@ -263,7 +269,7 @@ async def get_receipt_data():
     try:
         conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        select_query = "SELECT receipt_id, type, shop_information, time, total, item_purchase FROM receipt WHERE status = 'reviewed' ORDER BY time DESC"
+        select_query = "SELECT receipt_id, type, shop_information, time, total, item_purchase FROM receipt WHERE status = 'reviewed' AND user_id = 'f0a39253-df87-4f42-b8da-a9c893544b2c'::UUID ORDER BY time DESC"
         cursor.execute(select_query)
         return_data = cursor.fetchall()
         print(f"return_data: {return_data}")

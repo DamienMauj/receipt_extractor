@@ -37,11 +37,13 @@ def clean_receipt_data(data):
             if isinstance(details, dict) and "qty" in details and "price" in details:
                 try:
                     qty = int(details["qty"])
-                    price = float(details["price"])
-                    cleaned_data["item_purchase"][item] = {"qty": qty, "price": price}
                 except (ValueError, TypeError):
-                    print(f"Error in item_purchase: {item}")
-                    cleaned_data["item_purchase"][item] = {"qty": None, "price": None}
+                    qty = None
+                try:
+                    price = float(details["price"])
+                except (ValueError, TypeError):
+                    price = None
+                cleaned_data["item_purchase"][item] = {"qty": qty, "price": price}
             else:
                 cleaned_data["item_purchase"][item] = {"qty": None, "price": None}
     else:

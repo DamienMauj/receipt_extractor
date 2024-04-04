@@ -12,3 +12,4 @@ ultralytics
 openai
 httpx
 pytest
+pytest-asyncio

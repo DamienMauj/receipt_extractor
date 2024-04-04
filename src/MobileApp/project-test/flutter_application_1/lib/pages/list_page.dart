@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_application_1/widgets/navigation_bar.dart';
+import 'package:flutter_application_1/classes/receipt_class.dart'; // Import your receipt class
+import 'package:flutter_application_1/classes/data_service_class.dart';
 
 // import 'package:your_project_name/services/data_service.dart'; // Import your data service
 
@@ -41,7 +40,14 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                 return ListTile(
                   title: Text(receipt.shop_name),
                   subtitle: Text('Total: ${receipt.total.toString()}'),
-                  trailing: Icon(IconData(0xf3f9, fontFamily: 'MaterialIcons', matchTextDirection: true)),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(receipt.date.toString()), // Added date
+                      SizedBox(width: 8),
+                      Icon(IconData(0xf3f9, fontFamily: 'MaterialIcons', matchTextDirection: true)), // Existing icon
+                    ],
+                  ),
                   // Other UI elements...
                 );
               },
@@ -52,67 +58,6 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
         },
       ),
       bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: 0),
-    );
-  }
-}
-
-
-
-
-
-
-////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////
-
-
-// import 'dart:convert';
-// import 'package:http/http.dart' as http;
-
-class DataService {
-  Future<List<Receipt>> fetchReceipts() async {
-    var url = Uri.parse("http://${dotenv.env['CURRENT_IP']}:8000/getReceipt/");
-    var response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      List<dynamic> data = jsonDecode(response.body);
-      print("data: $data");
-      return data.map((json) => Receipt.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load receipts');
-    }
-  }
-}
-
-
-////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////
-
-class Receipt {
-  final String receipt_id;
-  final String shop_name;
-  final String type;
-  final String date;
-  final String total;
-  final Map<String, dynamic> item_purchase;
-  // other fields...
-
-  Receipt({required this.receipt_id,
-             required this.shop_name,
-             required this.type,
-             required this.date,
-             required this.total,
-             required this.item_purchase,
-             });
-
-  factory Receipt.fromJson(Map<String, dynamic> json) {
-    return Receipt(
-      receipt_id: json['receipt_id'] as String,
-      shop_name: json['shop_information'] as String,
-      type: json['type'] as String,
-      date: json['date'].toString(),
-      total: json['total'].toString(),
-      item_purchase: jsonDecode(json['item_purchase'] as String),
-      // initialize other fields...
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:mime/mime.dart' as mime;
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter_application_1/widgets/popup.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/globals.dart' as globals;
 
 
 
@@ -36,6 +37,8 @@ Future<String> sendData(String url, Map<String, dynamic> data) async {
     // try {
       final mimeTypeData = mime.lookupMimeType(_imageFile!.path, headerBytes: [0xFF, 0xD8])?.split('/');
       var request = http.MultipartRequest('POST', Uri.parse(endpoint));
+
+      request.fields['user_id'] = globals.user_id; // Add the user_id field
 
       request.files.add(await http.MultipartFile.fromPath(
         'file', // This depends on your API endpoint's field name

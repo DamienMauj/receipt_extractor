@@ -3,6 +3,7 @@ import 'package:flutter_application_1/services/network_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 import 'package:uuid/uuid.dart';
+import 'package:flutter_application_1/globals.dart' as globals;
 
 
 
@@ -56,10 +57,10 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
   void _initFromExistingReceipt() {
     Map<String, dynamic> response = json.decode(widget.popupText);
     result = response['results'] ?? {};
-    shopNameController = TextEditingController(text: result["shop_information"].toString());
+    shopNameController = TextEditingController(text: result["shop_information"] != null ? result["shop_information"].toString() : "");
     typeController = TextEditingController(text: result["type"].toString());
-    dateController = TextEditingController(text: result["time"].toString());
-    totalController = TextEditingController(text: result["total"].toString());
+    dateController = TextEditingController(text: (result["time"] != null || result["time"] != "null") ? result["time"].toString() : "");
+    totalController = TextEditingController(text: result["total"] != null ? result["total"].toString() : "");
 
     nameControllersDict = {};
     qtyControllersDict = {};
@@ -71,8 +72,8 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
   void _initItemFields() {
     result["item_purchase"]?.forEach((key, value) {
       nameControllersDict[key] = TextEditingController(text: key.toString());
-      qtyControllersDict[key] = TextEditingController(text: value['qty'].toString());
-      priceControllersDict[key] = TextEditingController(text: value['price'].toString());
+      qtyControllersDict[key] = TextEditingController(text: value['qty'] != null ? value['qty'].toString() : "");
+      priceControllersDict[key] = TextEditingController(text: value['price'] != null ? value['price'].toString() : "");
     });
   }
 
@@ -240,6 +241,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
                 };
               }
 
+              updatedResult["user_id"] = globals.user_id;
               updatedResult["receipt_id"] = result["receipt_id"];
               updatedResult["type"] = result["type"];
 

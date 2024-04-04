@@ -3,10 +3,14 @@ import 'package:camera/camera.dart';
 import 'package:flutter_application_1/services/network_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_application_1/widgets/camera.dart';
+import 'package:http/http.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_application_1/widgets/camera_roll.dart';
 import 'package:flutter_application_1/widgets/navigation_bar.dart';
+import 'package:flutter_application_1/classes/data_service_class.dart';
+import 'package:flutter_application_1/globals.dart' as globals;
+import 'package:flutter_application_1/widgets/popup.dart';
 
 
 
@@ -67,8 +71,13 @@ class _CameraPageState extends State<CameraPage> {
       _isUploading = true;
     });
     try {
-      await sendPicture(context, _imageFile, "http://${dotenv.env['CURRENT_IP']}:8000/uploadPicture/");
-      // Handle response or any other logic here
+    Response response = await DataService().sendPicture(_imageFile, globals.user_id);
+    if (response.statusCode == 200) {
+        print('Picture uploaded');
+        showPopup(context, "uplaod picture", response.body, false);
+      } else {
+        throw Exception('Failed to upload picture');
+      }
     } catch (e) {
       // Handle error here
     } finally {

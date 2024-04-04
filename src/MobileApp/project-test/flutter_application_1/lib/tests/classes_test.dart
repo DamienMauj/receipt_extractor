@@ -1,14 +1,17 @@
+import 'package:http/http.dart';
 import 'package:test/test.dart';
 import 'package:flutter_application_1/classes/data_service_class.dart';
 import 'package:flutter_application_1/classes/receipt_class.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
+import 'package:camera/camera.dart';
+
 
 var test_user_id = "0b158bbc-3842-4dc2-b8dc-8dec91f4a92a";
 
 void main() async {
   await dotenv.load(fileName: "lib/.env");
-  group('MyClass Tests', () {
+  group('Data Services Tests', () {
     test('Test someFunction', () async {
       DataService data_service = DataService();
        Receipt receipt1 = Receipt(
@@ -56,7 +59,7 @@ void main() async {
       List<Receipt> expected_receipts = [receipt3, receipt2, receipt1];
 
       List<Receipt> result = await data_service.fetchReceipts(test_user_id);
-      print(result);
+
       expect(result, isA<List<Receipt>>());
       expect(result.length, 3);
       
@@ -70,6 +73,24 @@ void main() async {
       }
     });
 
-    // Add more tests
+    test('Send Picture test', () async {
+      DataService data_service = DataService();
+
+      // Create a dummy XFile object
+      XFile dummy_image = XFile('lib/tests/assets/image.png');
+      String user_id = test_user_id;
+
+      Response responce = await data_service.sendPicture(dummy_image, user_id); 
+      expect(responce.statusCode, 200);
+     
+      expect(json.decode(responce.body), isA<Map<String, dynamic>>());
+      Map<String, dynamic> responce_data = json.decode(responce.body);
+
+      expect(responce_data.containsKey('results'), true);
+      expect(responce_data["results"].containsKey('shop_information'), true);
+      expect(responce_data["results"].containsKey('type'), true);
+      expect(responce_data["results"].containsKey('time'), true);
+      expect(responce_data["results"].containsKey('total'), true);
+    });
   });
 }

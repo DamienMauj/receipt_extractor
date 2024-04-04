@@ -9,6 +9,7 @@ import 'package:flutter_application_1/classes/receipt_class.dart';
 import 'package:flutter_application_1/classes/data_service_class.dart';
 import 'package:flutter_application_1/widgets/analitics/line_chart.dart';
 import 'package:flutter_application_1/widgets/analitics/line_chart_test.dart' as test;
+import 'package:flutter_application_1/globals.dart' as globals;
 
 
 
@@ -27,7 +28,7 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    futureReceipts = DataService().fetchReceipts();
+    futureReceipts = DataService().fetchReceipts(globals.user_id);
     List<FlSpot> spots = [];
   
   }

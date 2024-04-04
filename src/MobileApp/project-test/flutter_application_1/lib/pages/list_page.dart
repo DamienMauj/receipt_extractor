@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/widgets/navigation_bar.dart';
 import 'package:flutter_application_1/classes/receipt_class.dart'; // Import your receipt class
 import 'package:flutter_application_1/classes/data_service_class.dart';
-
+import 'package:flutter_application_1/globals.dart' as globals;
 // import 'package:your_project_name/services/data_service.dart'; // Import your data service
 
 class ReceiptsPage extends StatefulWidget {
@@ -17,7 +17,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
   @override
   void initState() {
     super.initState();
-    futureReceipts = DataService().fetchReceipts();
+    futureReceipts = DataService().fetchReceipts(globals.user_id);
     
   }
 

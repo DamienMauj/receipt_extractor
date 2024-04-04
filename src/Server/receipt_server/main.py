@@ -265,11 +265,11 @@ async def upload_receipt_data(kwargs: dict):
         conn.close()
 
 @app.get("/getReceipt/")
-async def get_receipt_data():
+async def get_receipt_data(user_id: str = None):
     try:
         conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        select_query = "SELECT receipt_id, type, shop_information, time, total, item_purchase FROM receipt WHERE status = 'reviewed' AND user_id = 'f0a39253-df87-4f42-b8da-a9c893544b2c'::UUID ORDER BY time DESC"
+        select_query = f"SELECT receipt_id, type, shop_information, time, total, item_purchase FROM receipt WHERE status = 'reviewed' AND user_id = '{user_id}'::UUID ORDER BY time DESC"
         cursor.execute(select_query)
         return_data = cursor.fetchall()
         print(f"return_data: {return_data}")

@@ -4,8 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DataService {
-  Future<List<Receipt>> fetchReceipts() async {
-    var url = Uri.parse("http://${dotenv.env['CURRENT_IP']}:8000/getReceipt/");
+  Future<List<Receipt>> fetchReceipts(String user_id) async {
+    var url = Uri.parse("http://${dotenv.env['CURRENT_IP']}:8000/getReceipt?user_id=$user_id");
     var response = await http.get(url);
 
     if (response.statusCode == 200) {

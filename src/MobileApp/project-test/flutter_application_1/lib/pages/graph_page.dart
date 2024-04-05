@@ -217,6 +217,7 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: Key('Graph Page'),
       appBar: AppBar(
         flexibleSpace: Column(
           mainAxisAlignment: MainAxisAlignment.end,

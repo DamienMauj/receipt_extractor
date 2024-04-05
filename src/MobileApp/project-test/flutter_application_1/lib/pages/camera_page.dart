@@ -90,6 +90,7 @@ class _CameraPageState extends State<CameraPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: Key('Camera Page'),
       appBar: AppBar(title: Text('Take a Picture')),
       body: Center(
         child: Column(

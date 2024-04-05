@@ -24,6 +24,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: Key('Receipts Page'),
       appBar: AppBar(title: Text('Receipts')),
       body: FutureBuilder<List<Receipt>>(
         future: futureReceipts,

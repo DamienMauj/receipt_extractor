@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_application_1/globals.dart' as globals;
+import 'package:flutter_application_1/classes/data_service_class.dart';
 
 
 
@@ -100,10 +101,14 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
         margin: EdgeInsets.symmetric(vertical: 8), // Add vertical margin for separation
         child: Row(
           children: [
-            Text(category + ': '),
+            Text(
+              category + ': ',
+              key: Key("${category} text"),
+            ),
             SizedBox(width: 8), // Add some horizontal space between text and TextField
             Expanded(
               child: TextFormField(
+                key: Key("${category} field"), // Add a key to the TextFormField
                 controller: textController,
                 decoration: InputDecoration(hintText: category),
                 style: TextStyle(fontSize: _fontSize,),
@@ -134,6 +139,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
         Flexible(
           flex: 4,
           child: TextField(
+            key: Key("$key Name Field"),
             controller: nameControllersDict[key],
             decoration: InputDecoration(hintText: 'Name'),
             style: TextStyle(
@@ -147,6 +153,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
           child: Container(
             color: Colors.red, // Add red background color
             child: TextField(
+              key: Key("$key Qty Field"),
               controller: qtyControllersDict[key],
               textAlign: TextAlign.center,
               decoration: InputDecoration(hintText: 'Quantity'),
@@ -159,6 +166,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
         Flexible(
           flex: 2,
           child: TextField(
+            key: Key("$key Price Field"),
             textAlign: TextAlign.center,
             controller: priceControllersDict[key],
             decoration: InputDecoration(hintText: 'Price'),
@@ -166,6 +174,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
           ),
         ),
         IconButton(
+            key: Key("$key delete button"),
             icon: Icon(Icons.delete),
             onPressed: () {
               // Remove item row and associated controllers
@@ -187,8 +196,6 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
   @override
   Widget build(BuildContext context) {
     final double _fontSize = 13;
-    final TextEditingController _endpointController = TextEditingController(text: "http://${dotenv.env['CURRENT_IP']}:8000/uploadReceiptData/");
-
 
     return AlertDialog(
       title: Text('Popup'),
@@ -201,10 +208,11 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
               // Your existing buildBasicResponseField calls...
               buildBasicResponseField(shopNameController, "Shop Name", _fontSize),
               buildBasicResponseField(typeController, "Type", _fontSize),
-              buildBasicResponseField(dateController, "Day/Month/Year", _fontSize),
-              buildBasicResponseField(totalController, "total", _fontSize),
+              buildBasicResponseField(dateController, "Date", _fontSize),
+              buildBasicResponseField(totalController, "Total", _fontSize),
               ..._buildItemFields(_fontSize),
               ElevatedButton(
+                key: Key('Add Item Button'),
                 onPressed: _addItem,
                 child: Text('Add Item'),
               ),
@@ -252,7 +260,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
               // Here, you can use updatedJson as you need
               print(updatedJson); // For debugging
               // Handle the submission logic here
-              sendData(_endpointController.text, json.decode(updatedJson));
+              DataService().sendReviewedData(json.decode(updatedJson));
               Navigator.of(context).pop();
             }
           },

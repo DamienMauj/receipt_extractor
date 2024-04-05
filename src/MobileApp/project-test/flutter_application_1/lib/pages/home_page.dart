@@ -77,19 +77,19 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Text('Go to graph Page'),
           ),
 
-          ElevatedButton(
-            onPressed: () async {
-              print('button pressed!');
-              appState.getNext();
-              String endpoint = _endpointController.text;
-              print("error check:");
-              print(_bodyController.text);
-              Map<String, dynamic> body = jsonDecode(_bodyController.text);
-              _responseBody = await sendData(endpoint, body);
-              setState(() {}); // Update the UI
-            },
-            child: Text('Send'),
-          ),
+          // ElevatedButton(
+          //   onPressed: () async {
+          //     print('button pressed!');
+          //     appState.getNext();
+          //     String endpoint = _endpointController.text;
+          //     print("error check:");
+          //     print(_bodyController.text);
+          //     Map<String, dynamic> body = jsonDecode(_bodyController.text);
+          //     _responseBody = await sendData(endpoint, body);
+          //     setState(() {}); // Update the UI
+          //   },
+          //   child: Text('Send'),
+          // ),
 
           // TextPopupButton(buttonText: "buttonText", popupText: "popupText"),
           CustomButton(buttonText: "new entry", onPressCallback: () {

@@ -92,5 +92,41 @@ void main() async {
       expect(responce_data["results"].containsKey('time'), true);
       expect(responce_data["results"].containsKey('total'), true);
     });
+
+    test("send Reviewed Data Test", () async {
+
+      DataService data_service = DataService();
+      Map<String, dynamic> data = {
+        "results" : {
+          "receipt_id": "f1d126ee-8d1f-4de1-ab1a-a434a868bc90",
+          "user_id": test_user_id,
+          "shop_information": "LONDON SUPERMARKET LTD",
+          "type": "grocery",
+          "time": "2024-03-28 10:15:00",
+          "total": 1244.00,
+          "item_purchase": {
+            "disque be pizza a garnir": {"name": "disque be pizza a garnir", "qty": "1", "price": "4.0"},
+            "espuna 80g trad chorizo": {"name": "espuna 80g trad chorizo", "qty": "1", "price": "58.0"},
+            "denny white but .mushroom": {"name": "denny white but .mushroom", "qty": "1", "price": "149.95"},
+            "ch coca zero 1l": {"name": "ch coca zero 1l", "qty": "1", "price": "51.0"},
+            "veg he 250g rainbow tomato": {"name": "veg he 250g rainbow tomato", "qty": "1", "price": "138.0"}
+          }
+        }
+      };
+
+      String result = await data_service.sendReviewedData(data);
+      // expect(result)   
+      expect(result, '{"status":"success"}');
+
+      // Map<String, dynamic> error_data = {
+      //   "results" : {
+      //     "data not in good" : "format"
+      //   }
+      // };
+      // String result2 = await data_service.sendReviewedData(data);
+      // expect(result2, '{"status":"failed"}');
+
+
+    });
   });
 }

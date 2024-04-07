@@ -1,82 +1,129 @@
-// main.dart
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:fl_chart/fl_chart.dart' as fl_Chart;
+import 'package:fl_animated_linechart/fl_animated_linechart.dart' as fl_a_Chart;
 import 'package:intl/intl.dart';
 import 'package:flutter_application_1/classes/receipt_class.dart';
 
-
-class AnimatedLineChartWidget extends StatelessWidget {
+class AnimatedLineChartWidget extends StatefulWidget {
   final List<Receipt> data;
 
   AnimatedLineChartWidget({Key? key, required this.data}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    List<FlSpot> spots = _getSpotsFromData(data);
+  _AnimatedLineChartWidgetState createState() => _AnimatedLineChartWidgetState();
+}
 
-    return Container(
-      padding: const EdgeInsets.all(10),
-      width: double.infinity,
-      height: double.infinity, // Adjust height as necessary
-      child: fl_Chart.LineChart(
-        LineChartData(
-          lineBarsData: [
-            LineChartBarData(
-              spots: spots,
-              isCurved: false,
-              dotData: FlDotData(show: false),
-              color: Colors.red,
+class _AnimatedLineChartWidgetState extends State<AnimatedLineChartWidget> {
+  late DateTime displayedMonth;
+
+  @override
+  void initState() {
+    super.initState();
+    displayedMonth = DateTime.now();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<Receipt> filteredData = _filterForMonth(widget.data, displayedMonth);
+
+    Widget content;
+    if (filteredData.isEmpty) {
+      content = Center(child: Text("No data for this month"));
+    } else {
+      Map<DateTime, double> dailyTotals = _groupByDay(filteredData);
+      Map<DateTime, double> sortedDailyTotals = order_by_date(dailyTotals);
+
+      fl_a_Chart.LineChart lineChart = fl_a_Chart.LineChart.fromDateTimeMaps(
+        [sortedDailyTotals],
+        [Colors.red],
+        ['Rs'],
+        tapTextFontWeight: FontWeight.w400,
+      );
+
+      content = Container(
+        padding: const EdgeInsets.all(50),
+        width: double.infinity,
+        height: double.infinity,
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: fl_a_Chart.AnimatedLineChart(
+                lineChart,
+                key: ValueKey('${displayedMonth.year}-${displayedMonth.month}'),
+                gridColor: Colors.grey,
+                toolTipColor: Colors.blue,
+                legendsRightLandscapeMode: true,
+                textStyle: TextStyle(fontSize: 10, color: Colors.black54),
+                showMarkerLines: true,
+              ),
             ),
           ],
-          borderData: FlBorderData(
-              border: const Border(bottom: BorderSide(), left: BorderSide())),
-          gridData: FlGridData(show: false),
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 30,
-              getTitlesWidget: (value, meta) {
-                return Text(_formatDateFromMilliseconds(value));
-              },
-            )),
-            leftTitles: AxisTitles(sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 30,
-              getTitlesWidget: (value, meta) {
-                return Text('${value.toStringAsFixed(2)}');
-              },
-            )),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          ),
         ),
-      ),
+      );
+    }
+
+    DateTime now = DateTime.now();
+    bool isCurrentOrFutureMonth = displayedMonth.year > now.year ||
+                                 (displayedMonth.year == now.year && displayedMonth.month >= now.month);
+
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              icon: Icon(Icons.arrow_left),
+              onPressed: () {
+                setState(() {
+                  displayedMonth = DateTime(displayedMonth.year, displayedMonth.month - 1);
+                });
+              },
+            ),
+            Text(DateFormat('MMM yyyy').format(displayedMonth)),
+            IconButton(
+              icon: Icon(Icons.arrow_right),
+              onPressed: isCurrentOrFutureMonth ? null : () {
+                setState(() {
+                  displayedMonth = DateTime(displayedMonth.year, displayedMonth.month + 1);
+                });
+              },
+            ),
+          ],
+        ),
+        Expanded(child: content),
+      ],
     );
   }
 
-  List<FlSpot> _getSpotsFromData(List<Receipt> data) {
-    List<FlSpot> spots = [];
-    Map<DateTime, double> monthlyTotals = {};
-
-    for (var receipt in data) {
-      DateTime month = DateTime(receipt.date.year, receipt.date.month);
-      monthlyTotals.update(
-          month, (value) => value + receipt.total,
-          ifAbsent: () => receipt.total);
-    }
-
-    var sortedKeys = monthlyTotals.keys.toList()..sort();
-    for (var month in sortedKeys) {
-      double total = monthlyTotals[month]!;
-      spots.add(FlSpot(month.millisecondsSinceEpoch.toDouble(), total));
-    }
-
-    return spots;
+  List<Receipt> _filterForMonth(List<Receipt> receipts, DateTime month) {
+    return receipts.where((receipt) {
+      return receipt.date.year == month.year && receipt.date.month == month.month;
+    }).toList();
   }
 
-  String _formatDateFromMilliseconds(double value) {
-    final DateTime date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
-    return DateFormat('yyyy-MM').format(date);
+  Map<DateTime, double> _groupByDay(List<Receipt> receipts) {
+    Map<DateTime, double> dailyTotals = {};
+    for (var receipt in receipts) {
+      DateTime day = DateTime(receipt.date.year, receipt.date.month, receipt.date.day);
+      dailyTotals.update(
+          day, (value) => value + receipt.total,
+          ifAbsent: () => receipt.total);
+    }
+    return dailyTotals;
+  }
+
+  Map<DateTime, double> order_by_date(Map<DateTime, double> monthlyTotals) {
+    Map<DateTime, double> sortedMonthlyTotals = {};
+    var sortedKeys = monthlyTotals.keys.toList()..sort();
+    for (var key in sortedKeys) {
+      sortedMonthlyTotals[key] = monthlyTotals[key]!;
+    }
+    return sortedMonthlyTotals;
+  }
+
+  List<DateTime> _extractDates(Map<DateTime, double> monthlyTotals) {
+    return monthlyTotals.keys.toList();
   }
 }

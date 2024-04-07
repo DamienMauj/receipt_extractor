@@ -34,12 +34,10 @@ class _BarChartWithSelectorState extends State<BarChartWithSelector> {
     if (!_checkIfDataInMonth(displayedMonth, widget.data)) {
       content =  Center(child: Text("No data for this month"));
     } else {
-      content = Expanded(
-          child: BarChart(
+      content = BarChart(
             data: widget.data,
             month: DateFormat('yyyy-MM').format(displayedMonth),
-          ),
-        );
+          );
     }
     
 

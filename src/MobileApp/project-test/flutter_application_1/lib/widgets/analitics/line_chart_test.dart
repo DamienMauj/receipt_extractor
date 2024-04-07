@@ -6,84 +6,123 @@ import 'package:intl/intl.dart';
 import 'package:flutter_application_1/classes/receipt_class.dart';
 
 
-class AnimatedLineChartWidget extends StatelessWidget {
+
+class AnimatedLineChartWidget extends StatefulWidget {
   final List<Receipt> data;
 
   AnimatedLineChartWidget({Key? key, required this.data}) : super(key: key);
 
   @override
+  _AnimatedLineChartWidgetState createState() => _AnimatedLineChartWidgetState();
+}
+
+
+
+class _AnimatedLineChartWidgetState extends State<AnimatedLineChartWidget> {
+  late DateTime displayedMonth;
+
+  @override
+  void initState() {
+    super.initState();
+    displayedMonth = DateTime.now();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    Map<DateTime, double> monthlyTotals = _groupByMonth(data);
+    List<Receipt> filteredData = _filterForMonth(widget.data, displayedMonth);
 
-    // order the data by date
-    Map<DateTime, double> sortedMonthlyTotals = order_by_date(monthlyTotals);
+    Widget content;
+    if (filteredData.isEmpty) {
+      // Display 'No Data' message
+      content = Center(child: Text("No data for this month"));
+    } else {
+      Map<DateTime, double> dailyTotals = _groupByDay(filteredData);
+      Map<DateTime, double> sortedDailyTotals = order_by_date(dailyTotals);
 
-    List<DateTime> date_axis = _extractDates(monthlyTotals);
+      fl_a_Chart.LineChart lineChart = fl_a_Chart.LineChart.fromDateTimeMaps(
+        [sortedDailyTotals],
+        [Colors.red],
+        ['Rs'],
+        tapTextFontWeight: FontWeight.w400,
+      );
 
-    fl_a_Chart.LineChart lineChart = fl_a_Chart.LineChart.fromDateTimeMaps(
-      [sortedMonthlyTotals],
-      [Colors.red],
-      ['Rs'],
-      tapTextFontWeight: FontWeight.w400,
-    );
-
-
-
-    List<String> _getHorizontalTitles(List<DateTime> dates) {
-      List<String> titles = [];
-      for (var date in dates) {
-        String formattedDate = DateFormat('MMM yyyy').format(date);
-        titles.add(formattedDate);
-      }
-      return titles;
-    }
-
-    return  Container(
-      padding: const EdgeInsets.all(50),
-      width: double.infinity,
-      height: double.infinity, 
-      child: Column(
+      // If there is data, display the chart
+      content = Container(
+        padding: const EdgeInsets.all(50),
+        width: double.infinity,
+        height: double.infinity,
+        child: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: 
-                fl_a_Chart.AnimatedLineChart(
-                  lineChart,
-                  gridColor: Colors.grey,
-                  toolTipColor: Colors.blue,
-                  // verticalMarker: [
-                  //   DateTime.parse("2024-05-01 00:00:00.00"),
-                  //   DateTime.parse("2024-06-01 00:00:00.00")
-                  // ],
-                  legendsRightLandscapeMode: true,
-                  textStyle: TextStyle(fontSize: 10, color: Colors.black54),
-                  showMarkerLines: true, 
-
-                ) 
+              child: fl_a_Chart.AnimatedLineChart(
+                lineChart,
+                gridColor: Colors.grey,
+                toolTipColor: Colors.blue,
+                legendsRightLandscapeMode: true,
+                textStyle: TextStyle(fontSize: 10, color: Colors.black54),
+                showMarkerLines: true,
+              ),
             ),
-          ]
-      ),
+          ],
+        ),
+      );
+    }
+
+    DateTime now = DateTime.now();
+    bool isCurrentOrFutureMonth = displayedMonth.year > now.year ||
+                                 (displayedMonth.year == now.year && displayedMonth.month >= now.month);
+
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              icon: Icon(Icons.arrow_left),
+              onPressed: () {
+                setState(() {
+                  displayedMonth = DateTime(displayedMonth.year, displayedMonth.month - 1);
+                });
+              },
+            ),
+            Text(DateFormat('MMM yyyy').format(displayedMonth)),
+            IconButton(
+              icon: Icon(Icons.arrow_right),
+              onPressed: isCurrentOrFutureMonth ? null : () {
+                setState(() {
+                  displayedMonth = DateTime(displayedMonth.year, displayedMonth.month + 1);
+                });
+              },
+            ),
+          ],
+        ),
+        Expanded(child: content),
+      ],
     );
   }
 
-  Map<DateTime, double> _groupByMonth(List<Receipt> receipts) {
-    Map<DateTime, double> monthlyTotals = {};
+
+  List<Receipt> _filterForMonth(List<Receipt> receipts, DateTime month) {
+    return receipts.where((receipt) {
+      return receipt.date.year == month.year && receipt.date.month == month.month;
+    }).toList();
+  }
+
+    Map<DateTime, double> _groupByDay(List<Receipt> receipts) {
+    Map<DateTime, double> dailyTotals = {};
     for (var receipt in receipts) {
-      DateTime month = DateTime(receipt.date.year, receipt.date.month);
-      monthlyTotals.update(
-          month, (value) => value + receipt.total,
+      DateTime day = DateTime(receipt.date.year, receipt.date.month, receipt.date.day);
+      dailyTotals.update(
+          day, (value) => value + receipt.total,
           ifAbsent: () => receipt.total);
     }
-    return monthlyTotals;
+    return dailyTotals;
   }
 
-  List<DateTime> _extractDates(Map<DateTime, double> monthlyTotals) {
-    return monthlyTotals.keys.toList();
-  }
-
-  Map<DateTime, double> order_by_date(Map<DateTime, double> monthlyTotals) {
+    Map<DateTime, double> order_by_date(Map<DateTime, double> monthlyTotals) {
     Map<DateTime, double> sortedMonthlyTotals = {};
     var sortedKeys = monthlyTotals.keys.toList()..sort();
     for (var key in sortedKeys) {
@@ -92,29 +131,9 @@ class AnimatedLineChartWidget extends StatelessWidget {
     return sortedMonthlyTotals;
 
   }
-
-  List<fl_Chart.FlSpot> _getSpotsFromData(List<Receipt> data) {
-    List<fl_Chart.FlSpot> spots = [];
-    Map<DateTime, double> monthlyTotals = {};
-
-    for (var receipt in data) {
-      DateTime month = DateTime(receipt.date.year, receipt.date.month);
-      monthlyTotals.update(
-          month, (value) => value + receipt.total,
-          ifAbsent: () => receipt.total);
-    }
-
-    var sortedKeys = monthlyTotals.keys.toList()..sort();
-    for (var month in sortedKeys) {
-      double total = monthlyTotals[month]!;
-      spots.add(fl_Chart.FlSpot(month.millisecondsSinceEpoch.toDouble(), total));
-    }
-
-    return spots;
+  
+  List<DateTime> _extractDates(Map<DateTime, double> monthlyTotals) {
+    return monthlyTotals.keys.toList();
   }
 
-  String _formatDateFromMilliseconds(double value) {
-    final DateTime date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
-    return DateFormat('yyyy-MM').format(date);
-  }
 }

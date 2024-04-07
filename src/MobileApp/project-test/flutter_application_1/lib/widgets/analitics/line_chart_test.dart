@@ -1,11 +1,7 @@
-// main.dart
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart' as fl_Chart;
 import 'package:fl_animated_linechart/fl_animated_linechart.dart' as fl_a_Chart;
 import 'package:intl/intl.dart';
 import 'package:flutter_application_1/classes/receipt_class.dart';
-
-
 
 class AnimatedLineChartWidget extends StatefulWidget {
   final List<Receipt> data;
@@ -15,8 +11,6 @@ class AnimatedLineChartWidget extends StatefulWidget {
   @override
   _AnimatedLineChartWidgetState createState() => _AnimatedLineChartWidgetState();
 }
-
-
 
 class _AnimatedLineChartWidgetState extends State<AnimatedLineChartWidget> {
   late DateTime displayedMonth;
@@ -33,7 +27,6 @@ class _AnimatedLineChartWidgetState extends State<AnimatedLineChartWidget> {
 
     Widget content;
     if (filteredData.isEmpty) {
-      // Display 'No Data' message
       content = Center(child: Text("No data for this month"));
     } else {
       Map<DateTime, double> dailyTotals = _groupByDay(filteredData);
@@ -46,7 +39,6 @@ class _AnimatedLineChartWidgetState extends State<AnimatedLineChartWidget> {
         tapTextFontWeight: FontWeight.w400,
       );
 
-      // If there is data, display the chart
       content = Container(
         padding: const EdgeInsets.all(50),
         width: double.infinity,
@@ -59,6 +51,7 @@ class _AnimatedLineChartWidgetState extends State<AnimatedLineChartWidget> {
             Expanded(
               child: fl_a_Chart.AnimatedLineChart(
                 lineChart,
+                key: ValueKey('${displayedMonth.year}-${displayedMonth.month}'),
                 gridColor: Colors.grey,
                 toolTipColor: Colors.blue,
                 legendsRightLandscapeMode: true,
@@ -104,14 +97,13 @@ class _AnimatedLineChartWidgetState extends State<AnimatedLineChartWidget> {
     );
   }
 
-
   List<Receipt> _filterForMonth(List<Receipt> receipts, DateTime month) {
     return receipts.where((receipt) {
       return receipt.date.year == month.year && receipt.date.month == month.month;
     }).toList();
   }
 
-    Map<DateTime, double> _groupByDay(List<Receipt> receipts) {
+  Map<DateTime, double> _groupByDay(List<Receipt> receipts) {
     Map<DateTime, double> dailyTotals = {};
     for (var receipt in receipts) {
       DateTime day = DateTime(receipt.date.year, receipt.date.month, receipt.date.day);
@@ -122,18 +114,16 @@ class _AnimatedLineChartWidgetState extends State<AnimatedLineChartWidget> {
     return dailyTotals;
   }
 
-    Map<DateTime, double> order_by_date(Map<DateTime, double> monthlyTotals) {
+  Map<DateTime, double> order_by_date(Map<DateTime, double> monthlyTotals) {
     Map<DateTime, double> sortedMonthlyTotals = {};
     var sortedKeys = monthlyTotals.keys.toList()..sort();
     for (var key in sortedKeys) {
       sortedMonthlyTotals[key] = monthlyTotals[key]!;
     }
     return sortedMonthlyTotals;
-
   }
-  
+
   List<DateTime> _extractDates(Map<DateTime, double> monthlyTotals) {
     return monthlyTotals.keys.toList();
   }
-
 }

@@ -4,9 +4,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_application_1/classes/receipt_class.dart';
 
-
-
-
 class BarChartWithSelector extends StatefulWidget {
   final List<Receipt> data;
 
@@ -17,59 +14,85 @@ class BarChartWithSelector extends StatefulWidget {
 }
 
 class _BarChartWithSelectorState extends State<BarChartWithSelector> {
-  String? selectedMonth;
+  late DateTime displayedMonth;
 
   @override
   void initState() {
     super.initState();
-    selectedMonth = widget.data.isNotEmpty
-        ? DateFormat('yyyy-MM').format(widget.data.first.date)
-        : 'No Data';
+    displayedMonth = widget.data.isNotEmpty
+        ? DateTime(widget.data.first.date.year, widget.data.first.date.month)
+        : DateTime.now();
   }
 
   @override
   Widget build(BuildContext context) {
-    List<String> months = groupByMonth(widget.data).keys.toList();
+    DateTime now = DateTime.now();
+    bool isCurrentOrFutureMonth = displayedMonth.year > now.year ||
+                                 (displayedMonth.year == now.year && displayedMonth.month >= now.month);
+
+    Widget content;
+    if (!_checkIfDataInMonth(displayedMonth, widget.data)) {
+      content =  Center(child: Text("No data for this month"));
+    } else {
+      content = Expanded(
+          child: BarChart(
+            data: widget.data,
+            month: DateFormat('yyyy-MM').format(displayedMonth),
+          ),
+        );
+    }
+    
 
     return Column(
       children: [
-        DropdownButton<String>(
-          value: selectedMonth,
-          onChanged: (String? newValue) {
-            setState(() {
-              selectedMonth = newValue;
-            });
-          },
-          items: months.map<DropdownMenuItem<String>>((String month) {
-            return DropdownMenuItem<String>(
-              value: month,
-              child: Text(month),
-            );
-          }).toList(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              icon: Icon(Icons.arrow_left),
+              onPressed: () {
+                setState(() {
+                  displayedMonth = DateTime(displayedMonth.year, displayedMonth.month - 1);
+                });
+              },
+            ),
+            Text(DateFormat('yyyy-MM').format(displayedMonth)),
+            IconButton(
+              icon: Icon(Icons.arrow_right),
+              onPressed: isCurrentOrFutureMonth ? null : () {
+                setState(() {
+                  displayedMonth = DateTime(displayedMonth.year, displayedMonth.month + 1);
+                });
+              },
+            ),
+          ],
         ),
-        Expanded(
-          child: BarChart(data: widget.data, month: selectedMonth),
-        ),
+        Expanded(child: content),
       ],
     );
   }
 
-  Map<String, Map<String, double>> groupByMonth(List<Receipt> receipts) {
-    Map<String, Map<String, double>> monthlyTotals = {};
-    for (var receipt in receipts) {
-      String month = DateFormat('yyyy-MM').format(receipt.date);
-      if (!monthlyTotals.containsKey(month)) {
-        monthlyTotals[month] = {};
-      }
-      if (!monthlyTotals[month]!.containsKey(receipt.type)) {
-        monthlyTotals[month]![receipt.type] = 0;
-      }
-      monthlyTotals[month]![receipt.type] = monthlyTotals[month]![receipt.type]! + receipt.total;
-    }
-    return monthlyTotals;
+  bool _checkIfDataInMonth(DateTime month, List<Receipt> receipts) {
+    return receipts.any((receipt) {
+      return receipt.date.year == month.year && receipt.date.month == month.month;
+    });
   }
-}
 
+  // Map<String, Map<String, double>> groupByMonth(List<Receipt> receipts) {
+  //   Map<String, Map<String, double>> monthlyTotals = {};
+  //   for (var receipt in receipts) {
+  //     String month = DateFormat('yyyy-MM').format(receipt.date);
+  //     if (!monthlyTotals.containsKey(month)) {
+  //       monthlyTotals[month] = {};
+  //     }
+  //     if (!monthlyTotals[month]!.containsKey(receipt.type)) {
+  //       monthlyTotals[month]![receipt.type] = 0;
+  //     }
+  //     monthlyTotals[month]![receipt.type] = monthlyTotals[month]![receipt.type]! + receipt.total;
+  //   }
+  //   return monthlyTotals;
+  // }
+}
 
 class BarChart extends StatelessWidget {
   final List<Receipt> data;
@@ -81,14 +104,31 @@ class BarChart extends StatelessWidget {
   Widget build(BuildContext context) {
     Map<String, Map<String, double>> monthlyTotals = groupByMonth(data);
 
+    double totalMonthAmount = 0;
+    if (month != null && monthlyTotals[month] != null) {
+      monthlyTotals[month]!.forEach((_, total) {
+        totalMonthAmount += total;
+      });
+    }
+
     List<PieChartSectionData> barGroups = [];
     if (month != null && monthlyTotals[month] != null) {
       monthlyTotals[month]!.forEach((type, total) {
+        double percentage = (total / totalMonthAmount) * 100;
+        String title = '$type\n${total.toStringAsFixed(2)}Rs \n(${percentage.toStringAsFixed(1)}%)';
         barGroups.add(PieChartSectionData(
           value: total,
-          color: Color((Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0),
-          title: type,
+          color: _getLightRandomColor(),
+          title: title,
+          titleStyle: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 0, 0, 0),
+          ),
+          titlePositionPercentageOffset: 1.4, // Adjusts position of the title
+          badgePositionPercentageOffset: 0.98, // Adjusts position of the badge/connector
           radius: 100,
+          // showTitleOutside: true, // Display the title outside the chart
         ));
       });
     }
@@ -97,8 +137,12 @@ class BarChart extends StatelessWidget {
       child: PieChart(
         PieChartData(
           centerSpaceRadius: 10,
-          borderData: FlBorderData(show: false),
+          borderData: FlBorderData(show: true),
           sections: barGroups,
+          
+          // pieTouchData: PieTouchData(touchCallback: (pieTouchResponse) {
+          //   // Handle touch events here
+          // }
         ),
       ),
     );
@@ -118,6 +162,14 @@ class BarChart extends StatelessWidget {
     }
     return monthlyTotals;
   }
+
+  Color _getLightRandomColor() {
+    Random random = Random();
+    const int minBrightness = 100; // Adjust the minimum brightness as needed
+    int red = minBrightness + random.nextInt(256 - minBrightness);
+    int green = minBrightness + random.nextInt(256 - minBrightness);
+    int blue = minBrightness + random.nextInt(256 - minBrightness);
+    return Color.fromRGBO(red, green, blue, 1);
+  }
+
 }
-
-

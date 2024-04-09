@@ -11,6 +11,8 @@ from ultralytics import YOLO
 from receipt_server.model.functions.extract_receipt import extract_receipt
 from receipt_server.model.functions.llm_data_cleaning import generate_receipt_json
 from receipt_server.model.functions.data_cleaning import clean_receipt_data
+from receipt_server.model.functions.format_extracted_data_for_db_upload import format_extracted_data_for_db_upload
+from receipt_server.model.functions.server_query import receipt_table_column, receipt_update_query, raw_receipt_insert_query, receipt_insert_query
 from dateutil import parser
 from receipt_server.path import MODEL_PATH, UPLOAD_PICTURE_PATH
 from PIL import Image
@@ -30,77 +32,9 @@ DB_PORT = os.getenv('DB_PORT')
 DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_NAME = os.getenv('DB_NAME')
+
 app = FastAPI()
 
-receipt_table_column = [
-    "receipt_id", 
-    "user_id",
-    "type", 
-    "shop_information", 
-    "time", 
-    "total", 
-    "item_purchase", 
-    "raw_total", 
-    "raw_shop_information", 
-    "raw_time", 
-    "raw_item_purchase", 
-    "status"]
-
-receipt_insert_query = insert_query = """
-INSERT INTO receipt (
-    receipt_id, 
-    user_id,
-    type, 
-    shop_information, 
-    time, 
-    total, 
-    item_purchase, 
-    raw_total, 
-    raw_shop_information, 
-    raw_time, 
-    raw_item_purchase, 
-    status
-) VALUES (
-    %(receipt_id)s, 
-    %(user_id)s,
-    %(type)s, 
-    %(shop_information)s, 
-    %(time)s, 
-    CAST(%(total)s AS DOUBLE PRECISION), 
-    %(item_purchase)s, 
-    %(raw_total)s, 
-    %(raw_shop_information)s, 
-    %(raw_time)s, 
-    %(raw_item_purchase)s, 
-    %(status)s
-)
-"""
-
-receipt_update_query = """
-UPDATE receipt
-SET
-    type = %(type)s,
-    shop_information = %(shop_information)s,
-    time = %(time)s,
-    total = %(total)s,
-    item_purchase = %(item_purchase)s,
-    status = %(status)s
-WHERE
-    receipt_id = %(receipt_id)s AND 
-    user_id = %(user_id)s
-"""
-
-raw_receipt_insert_query = """
-INSERT INTO raw_receipt (
-    receipt_id,
-    export_datetime,
-    image
-) VALUES (
-    %(receipt_id)s,
-    %(export_datetime)s,
-    %(image)s
-)
-"""
 
 @app.get("/hello")
 async def hello_world():
@@ -125,7 +59,6 @@ async def create_item(user: User):
 
         # Execute the query
         cursor.execute(insert_query, data_to_insert)
-        print("executed query")
         
         # return_data = cursor.fetchall()
         print(f"return_data: {user_id}")
@@ -176,23 +109,21 @@ async def get_user(kwargs: dict, response: Response):
 @app.post("/uploadPicture/")
 async def upload_image(user_id: str = Form(...), file: UploadFile = File(...)):
     try:
-        # file_location = f"./receipt_server/uploads/{file.filename}"  # Define file location
+        contents = await file.read()
         file_location = os.path.join(UPLOAD_PICTURE_PATH, file.filename)
+        receipt_id = str(uuid.uuid4())
         print("User ID:", user_id)
  
-        contents = await file.read()
+        # Resize the image to 640x640
         image = Image.open(BytesIO(contents))
-
-        # Resize the image
         resized_image = image.resize((640,640))
 
         # Save the resized image to the file location
         with open(file_location, "wb") as file_object:
             resized_image.save(file_object, format=image.format)
-
-        # print(f"file '{file.filename}' saved at '{file_location}'")
-        receipt_id = str(uuid.uuid4())
        
+
+        # Generate the raw receipt data
         raw_receipt_data = {
             "receipt_id": receipt_id,
             "export_datetime": datetime.datetime.now(),
@@ -200,42 +131,20 @@ async def upload_image(user_id: str = Form(...), file: UploadFile = File(...)):
         }
 
         # Run your model
-        results = extract_receipt(model, file_location)
+        model_results = extract_receipt(model, file_location)
 
-        process_results = generate_receipt_json(os.getenv("OPENAI_API_KEY"), results)
+        process_results = generate_receipt_json(os.getenv("OPENAI_API_KEY"), model_results)
 
-        clean_data = clean_receipt_data(process_results)
-        # generate uuid for receipt base on the receipt name
-        clean_data["receipt_id"] = receipt_id
-        clean_data["user_id"] = user_id
-        clean_data["status"] = "pending"
-        # process_results["type"] = "grocery"
-        
-        to_upload = clean_data.copy()
-        to_upload["item_purchase"] = str(to_upload["item_purchase"]).replace("'", "\"")
+        clean_data = clean_receipt_data(process_results, receipt_id=receipt_id, user_id=user_id)
 
-        # for item in result put them into to_uplaod dict with while adding raw at the key
-        for key, value in results.items():
-            to_upload[f"raw_{key}"] = value
-
-        for key in receipt_table_column:
-            if key not in to_upload:
-                # print(f"adding {key} to to_upload")
-                to_upload[key] = None
-        
-        for key, value in to_upload.items():
-            if value == "":
-                to_upload[key] = None
-
-        # print(f"to_upload: {to_upload}")
+        to_upload = format_extracted_data_for_db_upload(clean_data, model_results, receipt_table_column )
 
         #insert into db
         conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
         cursor = conn.cursor(cursor_factory=RealDictCursor)
 
         cursor.execute(raw_receipt_insert_query, raw_receipt_data)
-
-        cursor.execute(insert_query, to_upload)
+        cursor.execute(receipt_insert_query, to_upload)
         conn.commit()
 
         cursor.close()
@@ -264,6 +173,7 @@ async def upload_receipt_data(kwargs: dict, response: Response):
         receipt_data["item_purchase"] = str(receipt_data["item_purchase"]).replace("'", "\"")
         for key, value in receipt_data.items():
             if value == "":
+                print(f"filling {value} with None")
                 receipt_data[key] = None
 
         # Execute the query
@@ -302,3 +212,7 @@ async def get_receipt_data(user_id: str = None):
     finally:
         cursor.close()
         conn.close()
+
+
+
+

@@ -1,7 +1,8 @@
 import json
 from datetime import datetime
+import uuid
 
-def clean_receipt_data(data):
+def clean_receipt_data(data, receipt_id = str(uuid.uuid4()) , user_id = str(uuid.uuid4())):
     # Define the expected schema with default values
     cleaned_data = {
         "shop_information": None,
@@ -48,5 +49,10 @@ def clean_receipt_data(data):
                 cleaned_data["item_purchase"][item] = {"qty": None, "price": None}
     else:
         cleaned_data["item_purchase"] = {}
+
+    cleaned_data["receipt_id"] = receipt_id
+    cleaned_data["user_id"] = user_id
+    cleaned_data["status"] = "pending"
+    
 
     return cleaned_data

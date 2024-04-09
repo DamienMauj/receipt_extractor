@@ -14,6 +14,7 @@ class CameraPopupWidget extends StatefulWidget {
 class _CameraPopupWidgetState extends State<CameraPopupWidget> {
   CameraController? _controller;
   List<CameraDescription>? _cameras;
+  bool _isFlashOn = false;
 
   @override
   void initState() {
@@ -34,6 +35,17 @@ class _CameraPopupWidgetState extends State<CameraPopupWidget> {
     }
   }
 
+  void _toggleFlash() { // New method to toggle flash
+    if (_controller != null) {
+      setState(() {
+        _isFlashOn = !_isFlashOn;
+        _controller!.setFlashMode(
+          _isFlashOn ? FlashMode.torch : FlashMode.off,
+        );
+      });
+    }
+  }
+
   @override
   void dispose() {
     _controller?.dispose();
@@ -43,6 +55,7 @@ class _CameraPopupWidgetState extends State<CameraPopupWidget> {
   void _takePicture() async {
     if (_controller!.value.isInitialized && !_controller!.value.isTakingPicture) {
       try {
+        await _controller!.setFlashMode(_isFlashOn ? FlashMode.always : FlashMode.off);
         final file = await _controller!.takePicture();
         widget.onPictureTaken(file);
       } catch (e) {
@@ -61,6 +74,11 @@ class _CameraPopupWidgetState extends State<CameraPopupWidget> {
       children: [
         Expanded(
           child: CameraPreview(_controller!),
+        ),
+        ElevatedButton.icon(
+          onPressed: _toggleFlash,  // Toggle flash when this button is pressed
+          icon: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off),
+          label: Text('Toggle Flash'),
         ),
         ElevatedButton.icon(
           onPressed: _takePicture,

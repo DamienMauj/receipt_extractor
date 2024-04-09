@@ -3,6 +3,7 @@ from pydantic import BaseModel, EmailStr
 from dotenv import load_dotenv
 import os
 from psycopg2.extras import RealDictCursor
+from psycopg2 import Binary
 from receipt_server.helper import get_db_connection
 import uuid
 import logging
@@ -15,6 +16,7 @@ from receipt_server.path import MODEL_PATH, UPLOAD_PICTURE_PATH
 from PIL import Image
 from io import BytesIO
 import os
+import datetime
 
 log = logging.getLogger("uvicorn")
 
@@ -86,6 +88,18 @@ SET
 WHERE
     receipt_id = %(receipt_id)s AND 
     user_id = %(user_id)s
+"""
+
+raw_receipt_insert_query = """
+INSERT INTO raw_receipt (
+    receipt_id,
+    export_datetime,
+    image
+) VALUES (
+    %(receipt_id)s,
+    %(export_datetime)s,
+    %(image)s
+)
 """
 
 @app.get("/hello")
@@ -177,6 +191,13 @@ async def upload_image(user_id: str = Form(...), file: UploadFile = File(...)):
             resized_image.save(file_object, format=image.format)
 
         # print(f"file '{file.filename}' saved at '{file_location}'")
+        receipt_id = str(uuid.uuid4())
+       
+        raw_receipt_data = {
+            "receipt_id": receipt_id,
+            "export_datetime": datetime.datetime.now(),
+            "image": Binary(contents)
+        }
 
         # Run your model
         results = extract_receipt(model, file_location)
@@ -185,7 +206,7 @@ async def upload_image(user_id: str = Form(...), file: UploadFile = File(...)):
 
         clean_data = clean_receipt_data(process_results)
         # generate uuid for receipt base on the receipt name
-        clean_data["receipt_id"] = str(uuid.uuid4())
+        clean_data["receipt_id"] = receipt_id
         clean_data["user_id"] = user_id
         clean_data["status"] = "pending"
         # process_results["type"] = "grocery"
@@ -195,12 +216,6 @@ async def upload_image(user_id: str = Form(...), file: UploadFile = File(...)):
 
         # for item in result put them into to_uplaod dict with while adding raw at the key
         for key, value in results.items():
-            ###### TO BE CHANGE IN THE MODEL PREDICTION ####### 
-            # if key == "shop_informaton":
-            #     to_upload["raw_shop_information"] = value
-            # elif key == "item_purshase":
-            #     to_upload["raw_item_purchase"] = value
-            # else: 
             to_upload[f"raw_{key}"] = value
 
         for key in receipt_table_column:
@@ -217,6 +232,9 @@ async def upload_image(user_id: str = Form(...), file: UploadFile = File(...)):
         #insert into db
         conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
         cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+        cursor.execute(raw_receipt_insert_query, raw_receipt_data)
+
         cursor.execute(insert_query, to_upload)
         conn.commit()
 
@@ -234,8 +252,8 @@ async def upload_image(user_id: str = Form(...), file: UploadFile = File(...)):
         cursor.close()
         conn.close()
 
-@app.post("/uploadReceiptData/")
-async def upload_receipt_data(kwargs: dict):
+@app.post("/uploadReceiptData/", status_code=200)
+async def upload_receipt_data(kwargs: dict, response: Response):
     try:
         print(f"kwargs: {kwargs}")
         conn = get_db_connection(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
@@ -259,7 +277,8 @@ async def upload_receipt_data(kwargs: dict):
     except Exception as e:
         conn.rollback()
         print(f"Exception: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"status": "failed", "message": str(e)}
     finally:
         cursor.close()
         conn.close()

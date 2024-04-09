@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS "users" (
     "password" VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS "raw_Receipt" (
+CREATE TABLE IF NOT EXISTS "raw_receipt" (
     "receipt_id" UUID PRIMARY KEY,
     "export_datetime" TIMESTAMP NOT NULL,
     "image" BYTEA NOT NULL

@@ -3,7 +3,7 @@ import 'package:flutter_application_1/widgets/navigation_bar.dart';
 import 'package:flutter_application_1/classes/receipt_class.dart'; // Import your receipt class
 import 'package:flutter_application_1/classes/data_service_class.dart';
 import 'package:flutter_application_1/globals.dart' as globals;
-// import 'package:your_project_name/services/data_service.dart'; // Import your data service
+import 'package:flutter_application_1/widgets/popup.dart';
 
 class ReceiptsPage extends StatefulWidget {
   @override
@@ -12,7 +12,7 @@ class ReceiptsPage extends StatefulWidget {
 
 class _ReceiptsPageState extends State<ReceiptsPage> {
   late Future<List<Receipt>> futureReceipts;
-  static const IconData subject_outlined = IconData(0xf3f9, fontFamily: 'MaterialIcons', matchTextDirection: true);
+  // static const IconData subject_outlined = IconData(0xf3f9, fontFamily: 'MaterialIcons', matchTextDirection: true);
 
   @override
   void initState() {
@@ -21,11 +21,27 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
     
   }
 
+  void refreshReceipts() {
+    setState(() {
+      futureReceipts = DataService().fetchReceipts(globals.user_id);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: Key('Receipts Page'),
-      appBar: AppBar(title: Text('Receipts')),
+      appBar: AppBar(
+        // add refresh button
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () {
+              refreshReceipts();
+            },
+          ),
+        ],
+        title: Text('Receipts')),
       body: FutureBuilder<List<Receipt>>(
         future: futureReceipts,
         builder: (context, snapshot) {
@@ -46,10 +62,14 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                     children: [
                       Text(receipt.date.toString()), // Added date
                       SizedBox(width: 8),
-                      Icon(IconData(0xf3f9, fontFamily: 'MaterialIcons', matchTextDirection: true)), // Existing icon
+                      Icon(Icons.edit_note),
                     ],
                   ),
-                  // Other UI elements...
+                  onTap: () {
+                    print("edit receipt : ${receipt.toString()}");
+                    showPopup(context, "edit receipt", receipt.toString(), false);
+                    refreshReceipts();
+                  },
                 );
               },
             );

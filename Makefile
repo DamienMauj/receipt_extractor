@@ -2,6 +2,7 @@
 
 # Path to your server directory
 SERVER_DIR = src/Server
+APLLICATION_DIR = src/MobileApp/project-test/flutter_application_1
 
 # Docker-compose service name for your database
 DB_SERVICE_NAME = db
@@ -28,3 +29,17 @@ rebuild-db:
 	@echo "Starting services..."
 	@(cd $(SERVER_DIR) && docker-compose build)
 	@(cd $(SERVER_DIR) && docker-compose up)
+
+server-test:
+	@docker exec -it server-app-1 pytest   
+
+application-test:
+	@echo "Running tests for the application..."
+	@(cd $(APLLICATION_DIR) && flutter test lib)
+
+test:
+	@echo "Running tests for the server..."
+	@make server-test
+	@echo "Running tests for the application..."
+	@make application-test
+	@echo "All tests passed!"

@@ -33,7 +33,7 @@ class Receipt {
         // initialize other fields...
       );
     } catch (e) {
-      _logger.e('Error parsing receipt: $e');
+      _logger.d('Error parsing receipt: $e');
       return Receipt(
         receipt_id: 'Error parsing receipt',
         shop_name: 'Error parsing receipt',
@@ -44,5 +44,20 @@ class Receipt {
         // initialize other fields...
       );
     }
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'receipt_id': receipt_id,
+      'shop_information': shop_name,
+      'type': type,
+      'time': date.toIso8601String(),
+      'total': total,
+      'item_purchase': item_purchase,
+      // add other fields...
+    };
+  }
+
+  String toString() {
+    return jsonEncode({"results":this.toJson()});
   }
 }

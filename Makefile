@@ -27,7 +27,6 @@ rebuild-db:
 	@echo "Removing existing data directory..."
 	@rm -rf $(SERVER_DIR)/data
 	@echo "Starting services..."
-	@(cd $(SERVER_DIR) && docker-compose build)
 	@(cd $(SERVER_DIR) && docker-compose up)
 
 server-test:

@@ -213,6 +213,3 @@ async def get_receipt_data(user_id: str = None):
         cursor.close()
         conn.close()
 
-
-
-

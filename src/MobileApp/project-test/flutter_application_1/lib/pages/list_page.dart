@@ -40,6 +40,15 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
               refreshReceipts();
             },
           ),
+          // add add button
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              print("add receipt");
+              showPopup(context, "add receipt", "", true);
+              refreshReceipts();
+            },
+          ),
         ],
         title: Text('Receipts')),
       body: FutureBuilder<List<Receipt>>(

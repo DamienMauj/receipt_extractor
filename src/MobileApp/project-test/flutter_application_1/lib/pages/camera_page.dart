@@ -26,20 +26,24 @@ class _CameraPageState extends State<CameraPage> {
 
 
   void _showCameraPopup() {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return CameraPopupWidget(
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (BuildContext context) {
+      return FractionallySizedBox(
+        heightFactor: 0.8, 
+        child: CameraPopupWidget(
           onPictureTaken: (XFile file) {
             setState(() {
               _imageFile = file;
             });
             Navigator.pop(context);
           },
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
   void _showGalleryPopup(BuildContext context) {
   showModalBottomSheet(
     context: context,
@@ -98,37 +102,65 @@ class _CameraPageState extends State<CameraPage> {
           children: <Widget>[
             Expanded(
               child: _imageFile == null
-                  ? Center(child: Text('No image selected'))
-                  : AspectRatio(
+                  ? const Center(
+                      child: Text(
+                        "No image selected.",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    )
+                          : AspectRatio(
                       aspectRatio: 1, // You can adjust this ratio according to your needs
                       child: Image.file(File(_imageFile!.path), fit: BoxFit.cover),
                     ),
             ),
               Row(
-
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
                     onPressed: _showCameraPopup,
-                    child: Text('Open Camera'),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(120, 60), // Makes the button square and larger
+                      shape: const RoundedRectangleBorder( // Makes the button edges square
+                        borderRadius: BorderRadius.zero,
+                      ),
+                      padding: const EdgeInsets.all(16), // Optional: add padding to increase the size
+                    ),
+                    child: const Text('Open Camera'),
                   ),
                   ElevatedButton(
                     onPressed: _pickImageFromGallery,
-                    child: Text('Open Gallery'),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(120, 60), // Makes the button square and larger
+                      shape: const RoundedRectangleBorder( // Makes the button edges square
+                        borderRadius: BorderRadius.zero,
+                      ),
+                      padding: const EdgeInsets.all(16), // Optional: add padding to increase the size
+                    ),
+                    child: const Text('Open Gallery'),
                   ),
                   if (_imageFile != null)
                   ElevatedButton.icon(
                     onPressed: _isUploading ? null : _uploadAndSendImage, // Disable button when uploading
                     icon: _isUploading
-                        ? SizedBox(
+                        ? const SizedBox(
                             height: 20.0,
                             width: 20.0,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.0,
                             ),
                           )
-                        : Icon(Icons.upload),
-                    label: Text('Upload Picture'),
+                        : const Icon(Icons.upload),
+                    label: const Text('Extract'),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(120, 60), // Makes the button square and larger
+                      shape: const RoundedRectangleBorder( // Makes the button edges square
+                        borderRadius: BorderRadius.zero,
+                      ),
+                      padding: const EdgeInsets.all(16), // Optional: add padding to increase the size
+                    ),
                   ),
                 ],
               ),
@@ -139,6 +171,7 @@ class _CameraPageState extends State<CameraPage> {
     );
   }
   
+
 
 
 }

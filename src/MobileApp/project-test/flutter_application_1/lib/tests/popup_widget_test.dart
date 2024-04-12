@@ -16,7 +16,7 @@ void main() {
       ),
     );
 
-    List<String> keys = ['Shop Name', 'Type', 'Date', 'Total'];
+    List<String> keys = ['Shop', 'Type', 'Date', 'Total'];
 
     for (String key in keys) {
       final titleFinder = find.byKey(Key('$key text'));
@@ -71,7 +71,7 @@ void main() {
       ),
     );
 
-    final titleFinder = find.byKey(Key('Shop Name text'));
+    final titleFinder = find.byKey(Key('Shop text'));
     expect(titleFinder, findsOneWidget); 
     // Find the 'Close' button
     final closeButton = find.text('Close');

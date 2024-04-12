@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_application_1/models/app_state.dart';
+// import 'package:flutter_application_1/models/app_state.dart';
 import 'package:flutter_application_1/pages/home_page.dart';
 import 'package:flutter_application_1/pages/camera_page.dart';
+import 'package:english_words/english_words.dart';
 
 void main() async {
   await dotenv.load(fileName: "lib/.env");
   runApp(MyApp());
+}
+
+
+class MyAppState extends ChangeNotifier {
+  // var current = WordPair.random();
+  // void getNext() {
+  //   current = WordPair.random();
+  //   notifyListeners();
+  // }
 }
 
 

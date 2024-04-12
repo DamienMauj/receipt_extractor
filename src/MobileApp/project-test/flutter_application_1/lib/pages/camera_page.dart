@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
-import 'package:flutter_application_1/services/network_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_application_1/widgets/camera.dart';
 import 'package:http/http.dart';
 import 'dart:io';

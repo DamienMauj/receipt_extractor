@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/services/network_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_application_1/globals.dart' as globals;
@@ -32,7 +30,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
   final _formKey = GlobalKey<FormState>();
 
 
-    @override
+  @override
   void initState() {
     super.initState();
     

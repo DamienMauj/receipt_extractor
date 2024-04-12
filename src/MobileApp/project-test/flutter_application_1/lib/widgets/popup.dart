@@ -98,65 +98,109 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
   return Column(
     children: [
       Container(
-        margin: EdgeInsets.symmetric(vertical: 8), // Add vertical margin for separation
+        margin: EdgeInsets.symmetric(vertical: 8),
         child: Row(
           children: [
-            Text(
-              category + ': ',
-              key: Key("${category} text"),
+            Container(
+              height: 48, // Set a fixed height for consistency
+              alignment: Alignment.center, // Centers the text vertically
+              padding: EdgeInsets.symmetric(horizontal: 8), // Horizontal padding
+              // decoration: BoxDecoration(
+              //   border: Border.all(color: Colors.grey, width: 2),
+              //   borderRadius: BorderRadius.circular(5),
+              // ),
+              child: Text(
+                '$category: ',
+                key: Key("${category} text"),
+                style: TextStyle(
+                  fontSize: _fontSize+5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-            SizedBox(width: 8), // Add some horizontal space between text and TextField
+            SizedBox(width: 8),
             Expanded(
-              child: TextFormField(
-                key: Key("${category} field"), // Add a key to the TextFormField
-                controller: textController,
-                decoration: InputDecoration(hintText: category),
-                style: TextStyle(fontSize: _fontSize,),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter $category';
-                  }
-                  return null;
-                },
+              child: Container(
+                height: 48, // Set the same fixed height for consistency
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey, width: 2),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: TextFormField(
+                  key: Key("${category} field"),
+                  controller: textController,
+                  decoration: InputDecoration(
+                    border: InputBorder.none, // Remove internal border
+                    hintText: category,
+                    contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10), // Padding to center text
+                  ),
+                  style: TextStyle(fontSize: _fontSize),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter $category';
+                    }
+                    return null;
+                  },
+                ),
               ),
             ),
           ],
         ),
       ),
       Divider(
-        color: Color.fromARGB(255, 84, 69, 50), // Add your desired color
-        thickness: 1.5, // Add your desired thickness
-        height: 20, // Add your desired height
+        color: Color.fromARGB(255, 84, 69, 50), // Optionally adjust the color
+        thickness: 1.5,
+        height: 15,
       ),
     ],
   );
 }
 
-  Widget _buildItemRow(String key, double _fontSize) {
-    return Row(
+
+
+ Widget _buildItemRow(String key, double _fontSize) {
+  return Padding( // Add padding around the entire row
+    padding: EdgeInsets.only(bottom: 8.0), // Adjust as needed for vertical spacing between rows
+    child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Flexible(
           flex: 4,
-          child: TextField(
-            key: Key("$key Name Field"),
-            controller: nameControllersDict[key],
-            decoration: InputDecoration(hintText: 'Name'),
-            style: TextStyle(
-              fontSize: _fontSize,
+          child: Padding(
+            padding: EdgeInsets.only(right: 8.0), // Padding between this field and the next
+            child: TextField(
+              key: Key("$key Name Field"),
+              controller: nameControllersDict[key],
+              textAlign: TextAlign.center,
+              decoration: InputDecoration(
+                hintText: 'Name',
+                contentPadding: EdgeInsets.symmetric(vertical: 10.0), // Adjust vertical padding for height
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              style: TextStyle(
+                fontSize: _fontSize,
+              ),
+              maxLines: null,
             ),
-            maxLines: null,
           ),
         ),
         Flexible(
-          flex: 1,
-          child: Container(
-            color: Colors.red, // Add red background color
+          flex: 2,
+          child: Padding(
+            padding: EdgeInsets.only(right: 8.0), // Padding between this field and the next
             child: TextField(
               key: Key("$key Qty Field"),
               controller: qtyControllersDict[key],
               textAlign: TextAlign.center,
-              decoration: InputDecoration(hintText: 'Quantity'),
+              decoration: InputDecoration(
+                hintText: 'QTY',
+                contentPadding: EdgeInsets.symmetric(vertical: 10.0), // Adjust vertical padding for height
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               style: TextStyle(
                 fontSize: _fontSize,
               ),
@@ -169,29 +213,38 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
             key: Key("$key Price Field"),
             textAlign: TextAlign.center,
             controller: priceControllersDict[key],
-            decoration: InputDecoration(hintText: 'Price'),
+            decoration: InputDecoration(
+              hintText: 'Price',
+              contentPadding: EdgeInsets.symmetric(vertical: 10.0), // Adjust vertical padding for height
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                gapPadding: 2.0,
+              ),
+            ),
             style: TextStyle(fontSize: _fontSize,),
           ),
         ),
         IconButton(
-            key: Key("$key delete button"),
-            icon: Icon(Icons.delete),
-            onPressed: () {
-              // Remove item row and associated controllers
-              setState(() {
-                nameControllersDict[key]?.dispose(); // Dispose of name controller
-                qtyControllersDict[key]?.dispose(); // Dispose of quantity controller
-                priceControllersDict[key]?.dispose(); // Dispose of price controller
+          key: Key("$key delete button"),
+          icon: Icon(Icons.delete),
+          onPressed: () {
+            // Remove item row and associated controllers
+            setState(() {
+              nameControllersDict[key]?.dispose(); // Dispose of name controller
+              qtyControllersDict[key]?.dispose(); // Dispose of quantity controller
+              priceControllersDict[key]?.dispose(); // Dispose of price controller
 
-                nameControllersDict.remove(key);
-                qtyControllersDict.remove(key);
-                priceControllersDict.remove(key);
-              });
-            },
-          ),
+              nameControllersDict.remove(key);
+              qtyControllersDict.remove(key);
+              priceControllersDict.remove(key);
+            });
+          },
+        ),
       ],
-    );
-  }
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -199,6 +252,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
 
     return AlertDialog(
       title: Text('Popup'),
+      backgroundColor: Color.fromARGB(255, 255, 255, 255),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -206,7 +260,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Your existing buildBasicResponseField calls...
-              buildBasicResponseField(shopNameController, "Shop Name", _fontSize),
+              buildBasicResponseField(shopNameController, "Shop", _fontSize),
               buildBasicResponseField(typeController, "Type", _fontSize),
               buildBasicResponseField(dateController, "Date", _fontSize),
               buildBasicResponseField(totalController, "Total", _fontSize),

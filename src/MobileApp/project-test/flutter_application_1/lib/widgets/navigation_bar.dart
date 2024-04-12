@@ -24,31 +24,34 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (_selectedIndex != index) {
+      setState(() {
+        _selectedIndex = index;
+      });
 
-    switch (_selectedIndex) {
-      case 0:
-        Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ReceiptsPage()),
-              );
-        break;
-      case 1:
-        Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => CameraPage()),
-              );
-        break;
-      case 2:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>GraphPage()),
-        );
-        break;
+      switch (_selectedIndex) {
+        case 0:
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => ReceiptsPage()),
+          );
+          break;
+        case 1:
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => CameraPage()),
+          );
+          break;
+        case 2:
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => GraphPage()),
+          );
+          break;
+      }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

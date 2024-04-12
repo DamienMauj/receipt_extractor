@@ -55,9 +55,32 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
         future: futureReceipts,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+            } else if (snapshot.hasError) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+              Icon(
+                Icons.error_outline,
+                size: 48,
+                color: Colors.red,
+              ),
+              SizedBox(height: 16),
+                Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'Error: ${snapshot.error}',
+                  style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                  ),
+                ),
+                ),
+              ],
+            );
           } else if (snapshot.hasData) {
             return ListView.builder(
               itemCount: snapshot.data!.length,
@@ -69,7 +92,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(receipt.date.toString()), // Added date
+                      Text(receipt.date.toLocal().toString().split(' ')[0]), // Added date
                       SizedBox(width: 8),
                       Icon(Icons.edit_note),
                     ],

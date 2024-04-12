@@ -241,7 +241,28 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           // Display an error message if something went wrong
-          return Center(child: Text('Error: ${snapshot.error}'));
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Colors.red,
+            ),
+            SizedBox(height: 16),
+              Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+                ),
+              ),
+              ),
+            ],
+          );
         } else if (snapshot.hasData) {
           // Once the data is fetched, build the TabBarView with all three charts
           return TabBarView(

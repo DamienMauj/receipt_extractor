@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_application_1/widgets/navigation_bar.dart';
 import 'package:fl_chart/fl_chart.dart' as fl_Chart;
-import 'package:flutter_charts/flutter_charts.dart' as flutter_charts;
+// import 'package:flutter_charts/flutter_charts.dart' as flutter_charts;
 import 'package:intl/intl.dart';
 import 'package:flutter_application_1/widgets/analitics/pie_chart.dart';
 import 'package:flutter_application_1/classes/receipt_class.dart';
@@ -26,9 +26,9 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     futureReceipts = DataService().fetchReceipts(globals.user_id);
-    List<FlSpot> spots = [];
+    // List<FlSpot> spots = [];
   
   }
 
@@ -78,7 +78,7 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
     Map<DateTime, double> monthlyTotals = groupByMonth(latestData);
 
 
-    List<LineChartBarData> lines = [];
+    // List<LineChartBarData> lines = [];
     List<FlSpot> spots = monthlyTotals.entries.map((entry) {
       return FlSpot(entry.key.millisecondsSinceEpoch.toDouble(), entry.value);
     }).toList();

@@ -138,14 +138,14 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: Text(
                     formattedDate,
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 8, // Adjust the font size as needed
                     ),
                 ),
             );
         } else {
-            return Text(''); // Empty text for values not close to any spot
+            return const Text(''); // Empty text for values not close to any spot
         }
     },
 );
@@ -156,8 +156,8 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
     getTitlesWidget: (value, meta) {
       // Format the value as needed for the Y-axis
       return Text(
-        '${value.toStringAsFixed(2)}',  // Example formatting
-        style: TextStyle(
+        value.toStringAsFixed(2),  // Example formatting
+        style: const TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 12,  // Adjust the font size as needed
         ),
@@ -166,49 +166,49 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
     },
   );
 
-  // Example method to create a pie chart
-  Widget pieChart() {
+  // // Example method to create a pie chart
+  // Widget pieChart() {
     
-    flutter_charts.LabelLayoutStrategy? xContainerLabelLayoutStrategy;
-    flutter_charts.ChartData chartData;
-    flutter_charts.ChartOptions chartOptions = const flutter_charts.ChartOptions();
-    // Example shows an explicit use of the DefaultIterativeLabelLayoutStrategy.
-    // The xContainerLabelLayoutStrategy, if set to null or not set at all,
-    //   defaults to DefaultIterativeLabelLayoutStrategy
-    // Clients can also create their own LayoutStrategy.
-    xContainerLabelLayoutStrategy = flutter_charts.DefaultIterativeLabelLayoutStrategy(
-    options: chartOptions,
-    );
-    chartData = flutter_charts.ChartData(
-    dataRows: const [
-    [10.0, 20.0, 5.0, 30.0, 5.0, 20.0],
-    [30.0, 60.0, 16.0, 100.0, 12.0, 120.0],
-    [25.0, 40.0, 20.0, 80.0, 12.0, 90.0],
-    [12.0, 30.0, 18.0, 40.0, 10.0, 30.0],
-    ],
-    xUserLabels: const ['Wolf', 'Deer', 'Owl', 'Mouse', 'Hawk', 'Vole'],
-    dataRowsLegends: const [
-    'Spring',
-    'Summer',
-    'Fall',
-    'Winter',
-    ],
-    chartOptions: chartOptions,
-    );
-    // chartData.dataRowsDefaultColors(); // if not set, called in constructor
-    var lineChartContainer = flutter_charts.LineChartTopContainer(
-      chartData: chartData,
-      xContainerLabelLayoutStrategy: xContainerLabelLayoutStrategy,
-    );
+  //   flutter_charts.LabelLayoutStrategy? xContainerLabelLayoutStrategy;
+  //   flutter_charts.ChartData chartData;
+  //   flutter_charts.ChartOptions chartOptions = const flutter_charts.ChartOptions();
+  //   // Example shows an explicit use of the DefaultIterativeLabelLayoutStrategy.
+  //   // The xContainerLabelLayoutStrategy, if set to null or not set at all,
+  //   //   defaults to DefaultIterativeLabelLayoutStrategy
+  //   // Clients can also create their own LayoutStrategy.
+  //   xContainerLabelLayoutStrategy = flutter_charts.DefaultIterativeLabelLayoutStrategy(
+  //   options: chartOptions,
+  //   );
+  //   chartData = flutter_charts.ChartData(
+  //   dataRows: const [
+  //   [10.0, 20.0, 5.0, 30.0, 5.0, 20.0],
+  //   [30.0, 60.0, 16.0, 100.0, 12.0, 120.0],
+  //   [25.0, 40.0, 20.0, 80.0, 12.0, 90.0],
+  //   [12.0, 30.0, 18.0, 40.0, 10.0, 30.0],
+  //   ],
+  //   xUserLabels: const ['Wolf', 'Deer', 'Owl', 'Mouse', 'Hawk', 'Vole'],
+  //   dataRowsLegends: const [
+  //   'Spring',
+  //   'Summer',
+  //   'Fall',
+  //   'Winter',
+  //   ],
+  //   chartOptions: chartOptions,
+  //   );
+  //   // chartData.dataRowsDefaultColors(); // if not set, called in constructor
+  //   var lineChartContainer = flutter_charts.LineChartTopContainer(
+  //     chartData: chartData,
+  //     xContainerLabelLayoutStrategy: xContainerLabelLayoutStrategy,
+  //   );
 
-    var lineChart = flutter_charts.LineChart(
-      painter: flutter_charts.LineChartPainter(
-        lineChartContainer: lineChartContainer,
-      ),
-    );
-    return lineChart;
+  //   var lineChart = flutter_charts.LineChart(
+  //     painter: flutter_charts.LineChartPainter(
+  //       lineChartContainer: lineChartContainer,
+  //     ),
+  //   );
+  //   return lineChart;
   
-  }
+  // }
 
   // Generate some dummy data for the cahrt
   // This will be used to draw the red line
@@ -216,17 +216,16 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: Key('Graph Page'),
+      key: const Key('Graph Page'),
       appBar: AppBar(
         flexibleSpace: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             TabBar(
               controller: _tabController, // Link the TabController here
-              tabs: [
+              tabs: const [
                 Tab(text: 'Line Chart'),
                 Tab(text: 'Pie Chart'),
-                Tab(text: 'Missed'),
               ], 
             )
           ],
@@ -238,23 +237,23 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
         spots = [];
         if (snapshot.connectionState == ConnectionState.waiting) {
           // Show a loading indicator while waiting for the data
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           // Display an error message if something went wrong
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-            Icon(
+            const Icon(
               Icons.error_outline,
               size: 48,
               color: Colors.red,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
               Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 'Error: ${snapshot.error}',
-                style: TextStyle(
+                style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: Colors.red,
@@ -270,12 +269,12 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
             children: [
               AnimatedLineChartWidget(data: snapshot.data!), // Line chart with data
               BarChartWithSelector(data: snapshot.data!),  // Bar chart with the same data
-              pieChart(),  // Pie chart with the same data
+              // pieChart(),  // Pie chart with the same data
             ],
           );
         } else {
           // Handle the case where no data is available
-          return Center(child: Text('No data available'));
+          return const Center(child: Text('No data available'));
         }
       },
     ),

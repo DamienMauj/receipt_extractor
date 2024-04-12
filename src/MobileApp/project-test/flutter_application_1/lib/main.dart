@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_application_1/models/app_state.dart';
 import 'package:flutter_application_1/pages/home_page.dart';
+import 'package:flutter_application_1/pages/camera_page.dart';
 
 void main() async {
   await dotenv.load(fileName: "lib/.env");
@@ -21,10 +22,10 @@ class MyApp extends StatelessWidget {
         title: 'Namer App',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+          colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 83, 116, 126)),
         ),
-        home: MyHomePage(),
-        debugShowCheckedModeBanner: false, // Remove debug tag
+        home: CameraPage(),
+        debugShowCheckedModeBanner: false,
       ),
     );
   }

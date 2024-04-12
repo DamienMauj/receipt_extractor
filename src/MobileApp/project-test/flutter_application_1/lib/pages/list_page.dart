@@ -81,32 +81,40 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                 ),
               ],
             );
-          } else if (snapshot.hasData) {
+            } else if (snapshot.hasData && snapshot.data!.length != 0) {
             return ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                var receipt = snapshot.data![index];
-                return ListTile(
-                  title: Text(receipt.shop_name),
-                  subtitle: Text('Total: ${receipt.total.toString()}'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(receipt.date.toLocal().toString().split(' ')[0]), // Added date
-                      SizedBox(width: 8),
-                      Icon(Icons.edit_note),
-                    ],
-                  ),
-                  onTap: () {
-                    print("edit receipt : ${receipt.toString()}");
-                    showPopup(context, "edit receipt", receipt.toString(), false);
-                    refreshReceipts();
-                  },
-                );
+              var receipt = snapshot.data![index];
+              return ListTile(
+                title: Text(receipt.shop_name),
+                subtitle: Text('Total: ${receipt.total.toString()}'),
+                trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(receipt.date.toLocal().toString().split(' ')[0]), // Added date
+                  SizedBox(width: 8),
+                  Icon(Icons.edit_note),
+                ],
+                ),
+                onTap: () {
+                print("edit receipt : ${receipt.toString()}");
+                showPopup(context, "edit receipt", receipt.toString(), false);
+                refreshReceipts();
+                },
+              );
               },
             );
           } else {
-            return Text('No receipts found');
+            return Center(
+              child: Text(
+                "No receipts found. Add a new receipt.",
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
           }
         },
       ),

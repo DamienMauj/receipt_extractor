@@ -14,6 +14,12 @@ import 'package:flutter_application_1/globals.dart' as globals;
 
 
 class GraphPage extends StatefulWidget {
+  final DataService dataService;
+
+  GraphPage({Key? key, DataService? dataService})
+      : dataService = dataService ?? DataService(),
+        super(key: key);
+
   @override
   _GraphPageState createState() => _GraphPageState();
 }
@@ -27,7 +33,7 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    futureReceipts = DataService().fetchReceipts(globals.user_id);
+    futureReceipts = widget.dataService.fetchReceipts(globals.user_id);
     // List<FlSpot> spots = [];
   
   }
@@ -166,53 +172,6 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
     },
   );
 
-  // // Example method to create a pie chart
-  // Widget pieChart() {
-    
-  //   flutter_charts.LabelLayoutStrategy? xContainerLabelLayoutStrategy;
-  //   flutter_charts.ChartData chartData;
-  //   flutter_charts.ChartOptions chartOptions = const flutter_charts.ChartOptions();
-  //   // Example shows an explicit use of the DefaultIterativeLabelLayoutStrategy.
-  //   // The xContainerLabelLayoutStrategy, if set to null or not set at all,
-  //   //   defaults to DefaultIterativeLabelLayoutStrategy
-  //   // Clients can also create their own LayoutStrategy.
-  //   xContainerLabelLayoutStrategy = flutter_charts.DefaultIterativeLabelLayoutStrategy(
-  //   options: chartOptions,
-  //   );
-  //   chartData = flutter_charts.ChartData(
-  //   dataRows: const [
-  //   [10.0, 20.0, 5.0, 30.0, 5.0, 20.0],
-  //   [30.0, 60.0, 16.0, 100.0, 12.0, 120.0],
-  //   [25.0, 40.0, 20.0, 80.0, 12.0, 90.0],
-  //   [12.0, 30.0, 18.0, 40.0, 10.0, 30.0],
-  //   ],
-  //   xUserLabels: const ['Wolf', 'Deer', 'Owl', 'Mouse', 'Hawk', 'Vole'],
-  //   dataRowsLegends: const [
-  //   'Spring',
-  //   'Summer',
-  //   'Fall',
-  //   'Winter',
-  //   ],
-  //   chartOptions: chartOptions,
-  //   );
-  //   // chartData.dataRowsDefaultColors(); // if not set, called in constructor
-  //   var lineChartContainer = flutter_charts.LineChartTopContainer(
-  //     chartData: chartData,
-  //     xContainerLabelLayoutStrategy: xContainerLabelLayoutStrategy,
-  //   );
-
-  //   var lineChart = flutter_charts.LineChart(
-  //     painter: flutter_charts.LineChartPainter(
-  //       lineChartContainer: lineChartContainer,
-  //     ),
-  //   );
-  //   return lineChart;
-  
-  // }
-
-  // Generate some dummy data for the cahrt
-  // This will be used to draw the red line
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -222,10 +181,11 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             TabBar(
+              key: const Key('Tab Bar'),
               controller: _tabController, // Link the TabController here
               tabs: const [
-                Tab(text: 'Line Chart'),
-                Tab(text: 'Pie Chart'),
+                Tab(key: Key("Tab 1"),  text: 'Line Chart'),
+                Tab(key: Key("Tab 2"),  text: 'Pie Chart'),
               ], 
             )
           ],
@@ -241,6 +201,7 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
         } else if (snapshot.hasError) {
           // Display an error message if something went wrong
           return Column(
+            key: const Key('Error Message'),
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
             const Icon(
@@ -262,9 +223,10 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
               ),
             ],
           );
-        } else if (snapshot.hasData) {
+        } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
           // Once the data is fetched, build the TabBarView with all three charts
           return TabBarView(
+            key: const Key('Tab Bar View'),
             controller: _tabController,
             children: [
               AnimatedLineChartWidget(data: snapshot.data!), // Line chart with data
@@ -274,7 +236,13 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
           );
         } else {
           // Handle the case where no data is available
-          return const Center(child: Text('No data available'));
+          return const Center(
+            key: Key('No Data Message'),
+            child: Text(
+              'No data available',
+               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
+            ),
+          );
         }
       },
     ),

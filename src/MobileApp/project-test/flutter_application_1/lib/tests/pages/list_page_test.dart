@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_application_1/pages/list_page.dart';
-import 'package:flutter_application_1/widgets/navigation_bar.dart';
 import 'package:flutter_application_1/classes/receipt_class.dart';
-import 'package:flutter_application_1/widgets/popup.dart'; // Make sure the widget is correctly named here
-import 'package:mockito/mockito.dart';
 import 'package:flutter_application_1/globals.dart' as globals;
 import 'package:flutter_application_1/classes/data_service_class.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 

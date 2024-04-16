@@ -69,6 +69,7 @@ class _AnimatedLineChartWidgetState extends State<AnimatedLineChartWidget> {
                                  (displayedMonth.year == now.year && displayedMonth.month >= now.month);
 
     return Column(
+      key: const Key('Line Chart'),
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,

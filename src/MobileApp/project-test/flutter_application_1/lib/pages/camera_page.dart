@@ -12,14 +12,31 @@ import 'package:flutter_application_1/widgets/popup.dart';
 
 
 class CameraPage extends StatefulWidget {
+  final ImagePicker picker;
+  final DataService dataService;
+  final XFile? initialImageFile; // Optional initial image file
+
+  CameraPage({Key? key, ImagePicker? picker, DataService? dataService, this.initialImageFile})
+    : this.picker = picker ?? ImagePicker(),
+      this.dataService = dataService ?? DataService(),
+      super(key: key);
+
   @override
   _CameraPageState createState() => _CameraPageState();
 }
 
 class _CameraPageState extends State<CameraPage> {
   XFile? _imageFile;
-  final ImagePicker _picker = ImagePicker();
   bool _isUploading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // If an initial image file is provided, use it
+    if (widget.initialImageFile != null) {
+      _imageFile = widget.initialImageFile;
+    }
+  }
 
 
   void _showCameraPopup() {
@@ -28,8 +45,10 @@ class _CameraPageState extends State<CameraPage> {
     isScrollControlled: true,
     builder: (BuildContext context) {
       return FractionallySizedBox(
+        key: Key('Camera Popup'),
         heightFactor: 0.8, 
         child: CameraPopupWidget(
+          key: Key('Camera Popup Widget'),
           onPictureTaken: (XFile file) {
             setState(() {
               _imageFile = file;
@@ -46,8 +65,8 @@ class _CameraPageState extends State<CameraPage> {
     context: context,
     builder: (BuildContext context) {
       return GalleryPopupWidget(
+        key: Key('Gallery Popup Widget'),
         onImageSelected: (XFile file) {
-          // Use the file (image) as needed
         },
       );
     },
@@ -56,7 +75,7 @@ class _CameraPageState extends State<CameraPage> {
 
   Future<void> _pickImageFromGallery() async {
     try {
-      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      final pickedFile = await widget.picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
         setState(() {
           _imageFile = pickedFile;
@@ -100,6 +119,7 @@ class _CameraPageState extends State<CameraPage> {
             Expanded(
               child: _imageFile == null
                   ? const Center(
+                    key: Key('No Image Selected Message'),
                       child: Text(
                         "No image selected.",
                         style: TextStyle(
@@ -117,6 +137,7 @@ class _CameraPageState extends State<CameraPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
+                    key: Key('Open Camera Button'),
                     onPressed: _showCameraPopup,
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(120, 60), // Makes the button square and larger
@@ -128,6 +149,7 @@ class _CameraPageState extends State<CameraPage> {
                     child: const Text('Open Camera'),
                   ),
                   ElevatedButton(
+                    key: Key('Open Gallery Button'),
                     onPressed: _pickImageFromGallery,
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(120, 60), // Makes the button square and larger
@@ -140,6 +162,7 @@ class _CameraPageState extends State<CameraPage> {
                   ),
                   if (_imageFile != null)
                   ElevatedButton.icon(
+                    key: Key('Extract Button'),
                     onPressed: _isUploading ? null : _uploadAndSendImage, // Disable button when uploading
                     icon: _isUploading
                         ? const SizedBox(

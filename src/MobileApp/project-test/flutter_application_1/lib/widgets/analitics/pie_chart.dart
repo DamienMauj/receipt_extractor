@@ -133,6 +133,7 @@ class BarChart extends StatelessWidget {
 
     return Center(
       child: PieChart(
+        key: const Key('Pie Chart'),
         PieChartData(
           centerSpaceRadius: 10,
           borderData: FlBorderData(show: true),

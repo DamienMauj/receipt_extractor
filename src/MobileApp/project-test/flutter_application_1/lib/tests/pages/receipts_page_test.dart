@@ -78,5 +78,17 @@ void main() {
       expect(find.byKey(const Key("Receipt Popup")), findsOneWidget);
     });
 
+    testWidgets('Test edit feature', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(home: ReceiptsPage(dataService: mockDataService)));
+      await tester.pump(); // Triggers a frame
+      await tester.tap(find.byKey(const Key("row 0")));
+      await tester.pump(); // Triggers a frame
+      await tester.pump(const Duration(seconds: 1)); // Wait for the popup to appear
+      expect(find.byKey(const Key("Receipt Popup")), findsOneWidget);
+      //find "shop 1" in popup
+      expect(find.text("Shop 1"), findsExactly(2));
+      expect(find.text("Groceries"), findsOneWidget);
+    });
+
   });
 }

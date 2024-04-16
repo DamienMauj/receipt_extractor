@@ -23,7 +23,7 @@ class DataService {
       // print("data: $data");
       return data.map((json) =>  Receipt.fromJson(json)).toList();
     } else {
-      throw Exception('Failed to load receipts');
+      throw Exception('Failed to load receipts : ${response.statusCode} - ${response.body} - ${response.request}');
     }
   }
 

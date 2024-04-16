@@ -74,16 +74,35 @@ class _CameraPopupWidgetState extends State<CameraPopupWidget> {
       children: [
         Expanded(
           child: CameraPreview(_controller!),
-        ),
-        ElevatedButton.icon(
-          onPressed: _toggleFlash,  // Toggle flash when this button is pressed
-          icon: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off),
-          label: Text('Toggle Flash'),
-        ),
-        ElevatedButton.icon(
-          onPressed: _takePicture,
-          icon: Icon(Icons.camera),
-          label: Text('Capture'),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(120, 60), // Makes the button square and larger
+                shape: const RoundedRectangleBorder( // Makes the button edges square
+                  borderRadius: BorderRadius.zero,
+                ),
+                padding: const EdgeInsets.all(16), // Optional: add padding to increase the size
+              ),
+              onPressed: _toggleFlash,  // Toggle flash when this button is pressed
+              icon: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off),
+              label: Text('Toggle Flash'),
+            ),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(120, 60), // Makes the button square and larger
+                shape: const RoundedRectangleBorder( // Makes the button edges square
+                  borderRadius: BorderRadius.zero,
+                ),
+                padding: const EdgeInsets.all(16), // Optional: add padding to increase the size
+              ),
+              onPressed: _takePicture,
+              icon: Icon(Icons.camera),
+              label: Text('Capture'),
+            ),
+          ],
         ),
       ],
     );

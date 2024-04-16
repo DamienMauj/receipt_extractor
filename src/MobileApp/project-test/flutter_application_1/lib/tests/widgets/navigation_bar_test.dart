@@ -15,7 +15,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: 0),
+            bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: 1),
           ),
         ),
       );

@@ -8,7 +8,6 @@ class Receipt {
   final DateTime date;
   final double total;
   final Map<String, dynamic>? item_purchase;
-  // other fields...
 
   Receipt({required this.receipt_id,
              required this.shop_name,
@@ -53,7 +52,6 @@ class Receipt {
       'time': date.toIso8601String(),
       'total': total,
       'item_purchase': item_purchase,
-      // add other fields...
     };
   }
 

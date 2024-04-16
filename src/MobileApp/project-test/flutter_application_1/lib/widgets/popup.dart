@@ -249,6 +249,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
     final double _fontSize = 13;
 
     return AlertDialog(
+      key: Key('Receipt Popup'),
       title: Text('Popup'),
       backgroundColor: Color.fromARGB(255, 255, 255, 255),
       content: SingleChildScrollView(

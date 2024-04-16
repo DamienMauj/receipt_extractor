@@ -56,6 +56,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      key: const Key("BottomNavigationBar"),
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(IconData(0xe50d, fontFamily: 'MaterialIcons')),

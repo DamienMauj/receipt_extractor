@@ -29,6 +29,7 @@ Clean any small errors in the OCR results, such as correcting single-character m
 If the quantity of a product is not explicitly provided but mentioned multiple times, count the number of occurrences to estimate the quantity.
 add the field type which will categories the receipt into category (grocery, gaz, restaurant,...)
 If a field is missing put Null and nothing else, except for type field that you should guess out of the receipt data.
+The total should be base on the provided data and not the sum of the items.
 Format the output into a JSON structure with the following schema:
 {{
   "shop_information": "<Shop name>",

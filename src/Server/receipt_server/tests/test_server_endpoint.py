@@ -1,5 +1,6 @@
 # from httpx import AsyncClient
 # import pytest
+import json
 from receipt_server.main import app
 from fastapi.testclient import TestClient
 import pytest
@@ -68,6 +69,14 @@ def test_upload_picture():
     # This depends on how your uploadPicture endpoint is implemented
     # For example, if your endpoint returns the filename, you can do:
     assert response.json()["image_location"] == ['/usr/src/app/receipt_server/uploads/picture.png']
+    
+    assert type(response.json()["results"]) == dict
+    assert 'receipt_id' in response.json()["results"]
+    assert 'type' in response.json()["results"]
+    assert 'shop_information' in response.json()["results"]
+    assert 'time' in response.json()["results"]
+    assert 'total' in response.json()["results"]
+    assert 'item_purchase' in response.json()["results"]
 
 
 
@@ -96,3 +105,55 @@ def test_upload_receipt_data():
 
     # Check the response body
     assert response.json() == {"status": "success"}
+
+def test_upload_receipt_data_invalid():
+    # Create a dictionary for the receipt data
+    receipt_data = {
+        "user_id": "0b158bbc-3842-4dc2-b8dc-8dec91f4a92a",
+        "results": {
+            "user_id": "0b158bbc-3842-4dc2-b8dc-8dec91f4a92a",
+            "receipt_id": "invalid_receipt_id",
+            "shop_information": "Test Shop",
+            "type": "Grocery",
+            "time": "2022-01-01T00:00:00.000Z",
+            "total": 100.0,
+            "item_purchase": "{\"Apple\": {\"quantity\": 1, \"price\": 1.0}}"
+        }
+    }
+
+    # Send a POST request to the uploadReceiptData endpoint
+    response = client.post("/uploadReceiptData", json=receipt_data)
+
+    # Check the response status code
+    assert response.status_code == 500
+
+    # Check the response body
+    assert response.json() == {'message': 'invalid input syntax for type uuid: "invalid_receipt_id"\nLINE 11:     receipt_id = \'invalid_receipt_id\' AND \n                          ^\n','status': 'failed'}
+
+def test_get_receipt_data():
+    # Assuming there's a user ID available that has receipts marked as 'reviewed'.
+    test_user_id = '0b158bbc-3842-4dc2-b8dc-8dec91f4a92a'
+    
+    response = client.get(f"/getReceipt/?user_id={test_user_id}")
+    assert response.status_code == 200
+    
+    # Checking if the response is a list (as expected when fetching multiple records)
+    assert isinstance(response.json(), list)
+
+    # Additional checks can be added depending on the expected structure of the receipts
+    if response.json():
+        # Example of checking the structure of the first receipt item if not empty
+        assert 'receipt_id' in response.json()[0]
+        assert 'type' in response.json()[0]
+        assert 'shop_information' in response.json()[0]
+        assert 'time' in response.json()[0]
+        assert 'total' in response.json()[0]
+        assert 'item_purchase' in response.json()[0]
+
+def test_get_receipt_data_invalid():
+    # Assuming there's a user ID available that has no receipts marked as 'reviewed'.
+    test_user_id = '8b158bbc-3842-4dc2-b8dc-8dec91f4a92a'
+    
+    response = client.get(f"/getReceipt/?user_id={test_user_id}")
+    assert response.status_code == 200
+    assert response.json() == []

@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/widgets/camera.dart';
 import 'package:http/http.dart';
 import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_application_1/widgets/camera_roll.dart';
 import 'package:flutter_application_1/widgets/navigation_bar.dart';
 import 'package:flutter_application_1/classes/data_service_class.dart';
 import 'package:flutter_application_1/globals.dart' as globals;
 import 'package:flutter_application_1/widgets/popup.dart';
-
-
 
 class CameraPage extends StatefulWidget {
   final ImagePicker picker;
@@ -27,77 +26,68 @@ class CameraPage extends StatefulWidget {
 
 class _CameraPageState extends State<CameraPage> {
   XFile? _imageFile;
+  double _imageAspectRatio = 1; // Default aspect ratio
   bool _isUploading = false;
 
   @override
   void initState() {
     super.initState();
-    // If an initial image file is provided, use it
     if (widget.initialImageFile != null) {
-      _imageFile = widget.initialImageFile;
+      _setImageFile(widget.initialImageFile!);
     }
   }
 
+  Future<void> _setImageFile(XFile file) async {
+    final decodedImage = await decodeImageFromList(await file.readAsBytes());
+    setState(() {
+      _imageFile = file;
+      _imageAspectRatio = decodedImage.width / decodedImage.height;
+    });
+  }
 
   void _showCameraPopup() {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    builder: (BuildContext context) {
-      return FractionallySizedBox(
-        key: Key('Camera Popup'),
-        heightFactor: 0.8, 
-        child: CameraPopupWidget(
-          key: Key('Camera Popup Widget'),
-          onPictureTaken: (XFile file) {
-            setState(() {
-              _imageFile = file;
-            });
-            Navigator.pop(context);
-          },
-        ),
-      );
-    },
-  );
-}
-  void _showGalleryPopup(BuildContext context) {
-  showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) {
-      return GalleryPopupWidget(
-        key: Key('Gallery Popup Widget'),
-        onImageSelected: (XFile file) {
-        },
-      );
-    },
-  );
-}
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return FractionallySizedBox(
+          key: const Key('Camera Popup'),
+          heightFactor: 0.8, 
+          child: CameraPopupWidget(
+            key: const Key('Camera Popup Widget'),
+            onPictureTaken: (XFile file) {
+              _setImageFile(file);
+              Navigator.pop(context);
+            },
+          ),
+        );
+      },
+    );
+  }
 
   Future<void> _pickImageFromGallery() async {
     try {
       final pickedFile = await widget.picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
-        setState(() {
-          _imageFile = pickedFile;
-        });
+        _setImageFile(pickedFile);
       }
     } catch (e) {
       print('Failed to pick image: $e');
     }
   }
 
-    Future<void> _uploadAndSendImage() async {
+  Future<void> _uploadAndSendImage() async {
     setState(() {
       _isUploading = true;
     });
     try {
-    Response response = await DataService().sendPicture(_imageFile, globals.user_id);
-    if (response.statusCode == 200) {
-        print('Picture uploaded');
-        showPopup(context, "uplaod picture", response.body, false);
-      } else {
-        throw Exception('Failed to upload picture');
-      }
+      Response response = await DataService().sendPicture(_imageFile, globals.user_id);
+      if (response.statusCode == 200) {
+          print('Picture uploaded');
+          showPopup(context, "Upload Picture", response.body, false);
+        } else {
+          throw Exception('Failed to upload picture');
+        }
     } catch (e) {
       // Handle error here
     } finally {
@@ -110,8 +100,8 @@ class _CameraPageState extends State<CameraPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: Key('Camera Page'),
-      appBar: AppBar(title: Text('Take a Picture')),
+      key: const Key('Camera Page'),
+      appBar: AppBar(title: const Text('Take a Picture')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -128,16 +118,16 @@ class _CameraPageState extends State<CameraPage> {
                         ),
                       ),
                     )
-                          : AspectRatio(
-                      aspectRatio: 1, // You can adjust this ratio according to your needs
-                      child: Image.file(File(_imageFile!.path), fit: BoxFit.cover),
+                  : AspectRatio(
+                      aspectRatio: _imageAspectRatio,
+                      child: Image.file(File(_imageFile!.path), fit: BoxFit.contain),
                     ),
             ),
-              Row(
+             Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
-                    key: Key('Open Camera Button'),
+                    key: const Key('Open Camera Button'),
                     onPressed: _showCameraPopup,
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(120, 60), // Makes the button square and larger
@@ -149,7 +139,7 @@ class _CameraPageState extends State<CameraPage> {
                     child: const Text('Open Camera'),
                   ),
                   ElevatedButton(
-                    key: Key('Open Gallery Button'),
+                    key: const Key('Open Gallery Button'),
                     onPressed: _pickImageFromGallery,
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(120, 60), // Makes the button square and larger
@@ -162,7 +152,7 @@ class _CameraPageState extends State<CameraPage> {
                   ),
                   if (_imageFile != null)
                   ElevatedButton.icon(
-                    key: Key('Extract Button'),
+                    key: const Key('Extract Button'),
                     onPressed: _isUploading ? null : _uploadAndSendImage, // Disable button when uploading
                     icon: _isUploading
                         ? const SizedBox(
@@ -190,8 +180,8 @@ class _CameraPageState extends State<CameraPage> {
       bottomNavigationBar: CustomBottomNavigationBar(selectedIndex: 1),
     );
   }
-  
-
-
-
 }
+
+
+
+

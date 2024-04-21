@@ -30,7 +30,7 @@ rebuild-db:
 	@(cd $(SERVER_DIR) && docker-compose up)
 
 server-test:
-	@docker exec -it server-app-1 pytest   
+	@docker exec -it server-app-1 pytest -v
 
 application-test:
 	@echo "Running tests for the application..."

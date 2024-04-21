@@ -9,14 +9,7 @@ void main() async {
 }
 
 
-class MyAppState extends ChangeNotifier {
-  // var current = WordPair.random();
-  // void getNext() {
-  //   current = WordPair.random();
-  //   notifyListeners();
-  // }
-}
-
+class MyAppState extends ChangeNotifier {}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);

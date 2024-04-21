@@ -8,7 +8,7 @@ void main() {
   // with widgets in the test environment.
   
 
-  testWidgets('Popup widget tester', (tester) async {
+  testWidgets('Popup widget initializer test', (tester) async {
 
     await tester.pumpWidget(
       MaterialApp(
@@ -58,9 +58,6 @@ void main() {
       final itemElementFinder = find.byKey(Key('Item 1 $key Field'));
       expect(itemElementFinder, findsNothing);
     }
-  });
-
-  testWidgets('Popup widget tester', (tester) async {
   });
 
   testWidgets('Close button test', (WidgetTester tester) async {

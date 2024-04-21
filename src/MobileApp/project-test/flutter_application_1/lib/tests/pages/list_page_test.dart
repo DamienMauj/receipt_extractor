@@ -49,7 +49,7 @@ void main() {
       globals.user_id = "0b158bbc-3842-4dc2-b8dc-8dec91f4a92a"; // Setting a test user id
     });
 
-    testWidgets('ReceiptsPage initializes with fetched data', (WidgetTester tester) async {
+    testWidgets('Receipts Page initializes with fetched data', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(home: ReceiptsPage(dataService: mockDataService)));
       await tester.pump(); // Triggers a frame
       expect(find.byKey(const Key("BottomNavigationBar")), findsOneWidget);

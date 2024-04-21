@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_application_1/widgets/navigation_bar.dart';
-// import 'package:flutter_application_1/pages/list_page.dart';
-// import 'package:flutter_application_1/pages/camera_page.dart';
-// import 'package:flutter_application_1/pages/graph_page.dart';
-// import 'package:mockito/mockito.dart';
 
 void main() {
-  // Mock Navigator
-  // final mockObserver = MockNavigatorObserver();
 
   group('CustomBottomNavigationBar Tests', () {
     testWidgets('Testing Receipt Button', (WidgetTester tester) async {

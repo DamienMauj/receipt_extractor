@@ -2,7 +2,7 @@
 current_ip=$(ifconfig en0 | awk '/inet /{print $2}')
 
 # Path to your .env file
-env_file="../MobileApp/project-test/flutter_application_1/lib/.env"
+env_file="../MobileApp/receipt_extractio_project/receipt_extractor/lib/.env"
 
 # Check if .env file exists
 if [ ! -f "$env_file" ]; then

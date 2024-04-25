@@ -56,6 +56,28 @@ WHERE
     user_id = %(user_id)s
 """
 
+new_receipt_insert_query = """
+INSERT INTO receipt (
+    receipt_id, 
+    user_id,
+    type, 
+    shop_information, 
+    time, 
+    total, 
+    item_purchase,
+    status
+) VALUES (
+    %(receipt_id)s, 
+    %(user_id)s,
+    %(type)s, 
+    %(shop_information)s, 
+    %(time)s, 
+    CAST(%(total)s AS DOUBLE PRECISION), 
+    %(item_purchase)s, 
+    %(status)s
+)
+"""
+
 raw_receipt_insert_query = """
 INSERT INTO raw_receipt (
     receipt_id,

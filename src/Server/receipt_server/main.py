@@ -12,7 +12,7 @@ from receipt_server.model.functions.extract_receipt import extract_receipt
 from receipt_server.model.functions.llm_data_cleaning import generate_receipt_json
 from receipt_server.model.functions.data_cleaning import clean_receipt_data
 from receipt_server.model.functions.format_extracted_data_for_db_upload import format_extracted_data_for_db_upload
-from receipt_server.model.functions.server_query import receipt_table_column, receipt_update_query, raw_receipt_insert_query, receipt_insert_query
+from receipt_server.model.functions.server_query import receipt_table_column, receipt_update_query, raw_receipt_insert_query, receipt_insert_query, new_receipt_insert_query
 from dateutil import parser
 from receipt_server.path import MODEL_PATH, UPLOAD_PICTURE_PATH
 from PIL import Image
@@ -41,12 +41,12 @@ async def hello_world():
     return {"message": "Hello, World!"}
 
 
-# Define your data model as a Pydantic model
+
 class User(BaseModel):
     email: EmailStr
     password: str
 
-
+# Endpoint to register a new user
 @app.post("/register/")
 async def create_item(user: User):
     try:
@@ -75,6 +75,7 @@ async def create_item(user: User):
         conn.close()
 
 
+# Endpoint to get user details
 @app.post("/users/", status_code=200)
 async def get_user(kwargs: dict, response: Response):
 
@@ -106,6 +107,7 @@ async def get_user(kwargs: dict, response: Response):
         cursor.close()
         conn.close()
 
+# Endpoint to upload a picture and extract the receipt data
 @app.post("/uploadPicture/")
 async def upload_image(user_id: str = Form(...), file: UploadFile = File(...)):
     try:
@@ -130,13 +132,12 @@ async def upload_image(user_id: str = Form(...), file: UploadFile = File(...)):
             "image": Binary(contents)
         }
 
-        # Run your model
+        # Run your model and extract the receipt section
         model_results = extract_receipt(model, file_location)
-
+        # Format the extracted data
         process_results = generate_receipt_json(os.getenv("OPENAI_API_KEY"), model_results)
 
         clean_data = clean_receipt_data(process_results, receipt_id=receipt_id, user_id=user_id)
-
         to_upload = format_extracted_data_for_db_upload(clean_data, model_results, receipt_table_column )
 
         #insert into db
@@ -146,9 +147,6 @@ async def upload_image(user_id: str = Form(...), file: UploadFile = File(...)):
         cursor.execute(raw_receipt_insert_query, raw_receipt_data)
         cursor.execute(receipt_insert_query, to_upload)
         conn.commit()
-
-        cursor.close()
-        conn.close()
         
         # After saving the file, you can do additional processing if required
         return {"image_location": {file_location},
@@ -161,6 +159,7 @@ async def upload_image(user_id: str = Form(...), file: UploadFile = File(...)):
         cursor.close()
         conn.close()
 
+# Endpoint to upload receipt data and update the database
 @app.post("/uploadReceiptData/", status_code=200)
 async def upload_receipt_data(kwargs: dict, response: Response):
     try:
@@ -176,9 +175,13 @@ async def upload_receipt_data(kwargs: dict, response: Response):
                 print(f"filling {value} with None")
                 receipt_data[key] = None
 
-        # Execute the query
-        cursor.execute(receipt_update_query, receipt_data)
-        print("executed query")
+        # Check if it's a new receipt or an update
+        if kwargs.get("new_receipt"):
+            print("Inserting new receipt data")
+            cursor.execute(new_receipt_insert_query, receipt_data)
+        else:
+            print("Updating receipt data")
+            cursor.execute(receipt_update_query, receipt_data)
         
         conn.commit()
         cursor.close()
@@ -201,7 +204,7 @@ async def get_receipt_data(user_id: str = None):
         select_query = f"SELECT receipt_id, type, shop_information, time, total, item_purchase FROM receipt WHERE status = 'reviewed' AND user_id = '{user_id}'::UUID ORDER BY time DESC"
         cursor.execute(select_query)
         return_data = cursor.fetchall()
-        print(f"return_data: {return_data}")
+        print(f"Requesting data for {user_id}")
         cursor.close()
         conn.close()
         return return_data

@@ -135,6 +135,9 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
                   style: TextStyle(fontSize: _fontSize),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
+                      //Make decorator red
+                      
+
                       return 'Please enter $category';
                     }
                     return null;
@@ -304,10 +307,11 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
 
               updatedResult["user_id"] = globals.user_id;
               updatedResult["receipt_id"] = result["receipt_id"];
-              updatedResult["type"] = result["type"];
+              // updatedResult["type"] = result["type"];
 
               String updatedJson = json.encode({
-                "results": updatedResult
+                "results": updatedResult,
+                "new_receipt": widget.isNewReceipt
               });
 
               // Here, you can use updatedJson as you need

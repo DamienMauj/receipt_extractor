@@ -2,7 +2,7 @@
 
 # Path to your server directory
 SERVER_DIR = src/Server
-APLLICATION_DIR = src/MobileApp/receipt_extractio_project/receipt_extractor
+APLLICATION_DIR = src/MobileApp/receipt_extraction_project/receipt_extractor
 
 # Docker-compose service name for your database
 DB_SERVICE_NAME = db

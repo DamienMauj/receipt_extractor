@@ -35,8 +35,12 @@ void main() {
       // });
 
       testWidgets("test initialisation with image", (WidgetTester tester) async {
-        await tester.pumpWidget(MaterialApp(home: CameraPage(initialImageFile: XFile("lib/tests/assets/image.png"))));
-        await tester.pump();
+        var initialImageFile = XFile("lib/tests/assets/image2.png");
+        // expect image not null
+        expect(initialImageFile, isNotNull);
+        await tester.pumpWidget(MaterialApp(home: CameraPage(initialImageFile: initialImageFile)));
+        await tester.pumpAndSettle();
+        await tester.pump(const Duration(seconds: 3));
         expect(find.byKey(const Key("Camera Page")), findsOneWidget);
         expect(find.byKey(const Key("No Image Selected Message")), findsNothing);
         expect(find.byKey(const Key("Open Camera Button")), findsOneWidget);

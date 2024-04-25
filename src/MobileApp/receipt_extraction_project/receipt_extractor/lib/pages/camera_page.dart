@@ -33,7 +33,7 @@ class _CameraPageState extends State<CameraPage> {
   void initState() {
     super.initState();
     if (widget.initialImageFile != null) {
-      _setImageFile(widget.initialImageFile!);
+      _imageFile = widget.initialImageFile;
     }
   }
 

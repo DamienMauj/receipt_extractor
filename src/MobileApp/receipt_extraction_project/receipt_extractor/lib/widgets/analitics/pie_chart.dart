@@ -75,21 +75,6 @@ class _BarChartWithSelectorState extends State<BarChartWithSelector> {
       return receipt.date.year == month.year && receipt.date.month == month.month;
     });
   }
-
-  // Map<String, Map<String, double>> groupByMonth(List<Receipt> receipts) {
-  //   Map<String, Map<String, double>> monthlyTotals = {};
-  //   for (var receipt in receipts) {
-  //     String month = DateFormat('yyyy-MM').format(receipt.date);
-  //     if (!monthlyTotals.containsKey(month)) {
-  //       monthlyTotals[month] = {};
-  //     }
-  //     if (!monthlyTotals[month]!.containsKey(receipt.type)) {
-  //       monthlyTotals[month]![receipt.type] = 0;
-  //     }
-  //     monthlyTotals[month]![receipt.type] = monthlyTotals[month]![receipt.type]! + receipt.total;
-  //   }
-  //   return monthlyTotals;
-  // }
 }
 
 class BarChart extends StatelessWidget {
@@ -111,22 +96,42 @@ class BarChart extends StatelessWidget {
 
     List<PieChartSectionData> barGroups = [];
     if (month != null && monthlyTotals[month] != null) {
-      monthlyTotals[month]!.forEach((type, total) {
+      List<MapEntry<String, double>> sortedEntries = monthlyTotals[month]!.entries.toList();
+
+      // Sort entries by total in descending order
+      sortedEntries.sort((a, b) => b.value.compareTo(a.value));
+
+      // Reorder the list to alternate large and small
+      List<MapEntry<String, double>> reorderedEntries = [];
+      int start = 0, end = sortedEntries.length - 1;
+      while (start <= end) {
+        if (start == end) {
+          reorderedEntries.add(sortedEntries[start]);
+          break;
+        }
+        reorderedEntries.add(sortedEntries[start]);
+        reorderedEntries.add(sortedEntries[end]);
+        start++;
+        end--;
+      }
+
+      // Generate section data using the reordered entries
+      reorderedEntries.forEach((entry) {
+        double total = entry.value;
         double percentage = (total / totalMonthAmount) * 100;
-        String title = '$type\n${total.toStringAsFixed(2)}Rs \n(${percentage.toStringAsFixed(1)}%)';
+        String title = '${entry.key}\n${total.toStringAsFixed(2)}Rs \n(${percentage.toStringAsFixed(1)}%)';
         barGroups.add(PieChartSectionData(
           value: total,
           color: _getLightRandomColor(),
           title: title,
-          titleStyle: TextStyle(
+          titleStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: Color.fromARGB(255, 0, 0, 0),
           ),
-          titlePositionPercentageOffset: 1.4, // Adjusts position of the title
-          badgePositionPercentageOffset: 0.98, // Adjusts position of the badge/connector
           radius: 100,
-          // showTitleOutside: true, // Display the title outside the chart
+          titlePositionPercentageOffset: 1.4,
+          badgePositionPercentageOffset: 0.98,
         ));
       });
     }
@@ -138,10 +143,6 @@ class BarChart extends StatelessWidget {
           centerSpaceRadius: 10,
           borderData: FlBorderData(show: true),
           sections: barGroups,
-          
-          // pieTouchData: PieTouchData(touchCallback: (pieTouchResponse) {
-          //   // Handle touch events here
-          // }
         ),
       ),
     );

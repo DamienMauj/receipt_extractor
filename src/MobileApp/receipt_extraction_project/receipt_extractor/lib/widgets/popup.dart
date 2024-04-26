@@ -5,12 +5,10 @@ import 'package:receipt_extractor/globals.dart' as globals;
 import 'package:receipt_extractor/classes/data_service_class.dart';
 
 
-
 class ReceiptPopup extends StatefulWidget {
   final String buttonText;
   final bool isNewReceipt; 
   final String popupText;
-
 
   ReceiptPopup({Key? key, required this.buttonText, this.popupText = '', this.isNewReceipt = false}) : super(key: key);
 
@@ -27,8 +25,8 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
   late Map<String, TextEditingController> nameControllersDict;
   late Map<String, TextEditingController> qtyControllersDict;
   late Map<String, TextEditingController> priceControllersDict;
+  late Map<String, bool> validationErrors; 
   final _formKey = GlobalKey<FormState>();
-
 
   @override
   void initState() {
@@ -51,6 +49,13 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
     nameControllersDict = {};
     qtyControllersDict = {};
     priceControllersDict = {};
+
+    validationErrors = {
+      "Shop": false,
+      "Type": false,
+      "Date": false,
+      "Total": false,
+    };
   }
 
   void _initFromExistingReceipt() {
@@ -65,8 +70,14 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
     qtyControllersDict = {};
     priceControllersDict = {};
     _initItemFields();
-  }
 
+    validationErrors = {
+      "Shop": false,
+      "Type": false,
+      "Date": false,
+      "Total": false,
+    };
+  }
 
   void _initItemFields() {
     result["item_purchase"]?.forEach((key, value) {
@@ -100,13 +111,9 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
         child: Row(
           children: [
             Container(
-              height: 48, // Set a fixed height for consistency
-              alignment: Alignment.center, // Centers the text vertically
-              padding: EdgeInsets.symmetric(horizontal: 8), // Horizontal padding
-              // decoration: BoxDecoration(
-              //   border: Border.all(color: Colors.grey, width: 2),
-              //   borderRadius: BorderRadius.circular(5),
-              // ),
+              height: 48, 
+              alignment: Alignment.center, 
+              padding: EdgeInsets.symmetric(horizontal: 8), 
               child: Text(
                 '$category: ',
                 key: Key("${category} text"),
@@ -116,31 +123,35 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
                 ),
               ),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Expanded(
               child: Container(
-                height: 48, // Set the same fixed height for consistency
+                constraints: BoxConstraints(minHeight: 48), 
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey, width: 2),
+                  border: Border.all(
+                    color: (validationErrors[category] ?? false) ? Colors.red : Colors.grey,
+                    width: 2
+                  ),
                   borderRadius: BorderRadius.circular(5),
                 ),
                 child: TextFormField(
-                  key: Key("${category} field"),
+                  key: Key("${category} field ${validationErrors[category] ?? false ? 'error' : ''}"),
                   controller: textController,
                   decoration: InputDecoration(
-                    border: InputBorder.none, // Remove internal border
+                    border: InputBorder.none, 
                     hintText: category,
-                    contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10), // Padding to center text
+                    contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
                   ),
                   style: TextStyle(fontSize: _fontSize),
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      //Make decorator red
-                      
-
-                      return 'Please enter $category';
+                      bool isInvalid = value == null || value.isEmpty;
+                      setState(() {
+                        validationErrors[category] = isInvalid;
+                    });
+                    if (!isInvalid) {
+                      return null;
                     }
-                    return null;
+                    return "This field is required";
                   },
                 ),
               ),
@@ -148,8 +159,8 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
           ],
         ),
       ),
-      Divider(
-        color: Color.fromARGB(255, 84, 69, 50), // Optionally adjust the color
+      const Divider(
+        color: Color.fromARGB(255, 84, 69, 50),
         thickness: 1.5,
         height: 15,
       ),
@@ -160,22 +171,22 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
 
 
  Widget _buildItemRow(String key, double _fontSize) {
-  return Padding( // Add padding around the entire row
-    padding: EdgeInsets.only(bottom: 8.0), // Adjust as needed for vertical spacing between rows
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 8.0), 
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Flexible(
           flex: 4,
           child: Padding(
-            padding: EdgeInsets.only(right: 8.0), // Padding between this field and the next
+            padding: const EdgeInsets.only(right: 8.0), 
             child: TextField(
               key: Key("$key Name Field"),
               controller: nameControllersDict[key],
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 hintText: 'Name',
-                contentPadding: EdgeInsets.symmetric(vertical: 10.0), // Adjust vertical padding for height
+                contentPadding: EdgeInsets.symmetric(vertical: 10.0), 
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -190,14 +201,14 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
         Flexible(
           flex: 2,
           child: Padding(
-            padding: EdgeInsets.only(right: 8.0), // Padding between this field and the next
+            padding: const EdgeInsets.only(right: 8.0),
             child: TextField(
               key: Key("$key Qty Field"),
               controller: qtyControllersDict[key],
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 hintText: 'QTY',
-                contentPadding: EdgeInsets.symmetric(vertical: 10.0), // Adjust vertical padding for height
+                contentPadding: const EdgeInsets.symmetric(vertical: 10.0), 
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -216,7 +227,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
             controller: priceControllersDict[key],
             decoration: InputDecoration(
               hintText: 'Price',
-              contentPadding: EdgeInsets.symmetric(vertical: 10.0), // Adjust vertical padding for height
+              contentPadding: const EdgeInsets.symmetric(vertical: 10.0), 
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 gapPadding: 2.0,
@@ -227,13 +238,12 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
         ),
         IconButton(
           key: Key("$key delete button"),
-          icon: Icon(Icons.delete),
+          icon: const Icon(Icons.delete),
           onPressed: () {
-            // Remove item row and associated controllers
             setState(() {
-              nameControllersDict[key]?.dispose(); // Dispose of name controller
-              qtyControllersDict[key]?.dispose(); // Dispose of quantity controller
-              priceControllersDict[key]?.dispose(); // Dispose of price controller
+              nameControllersDict[key]?.dispose();
+              qtyControllersDict[key]?.dispose(); 
+              priceControllersDict[key]?.dispose();
 
               nameControllersDict.remove(key);
               qtyControllersDict.remove(key);
@@ -252,25 +262,24 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
     final double _fontSize = 13;
 
     return AlertDialog(
-      key: Key('Receipt Popup'),
-      title: Text('Popup'),
-      backgroundColor: Color.fromARGB(255, 255, 255, 255),
+      key: const Key('Receipt Popup'),
+      title: const Text('Popup'),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Your existing buildBasicResponseField calls...
               buildBasicResponseField(shopNameController, "Shop", _fontSize),
               buildBasicResponseField(typeController, "Type", _fontSize),
               buildBasicResponseField(dateController, "Date", _fontSize),
               buildBasicResponseField(totalController, "Total", _fontSize),
               ..._buildItemFields(_fontSize),
               ElevatedButton(
-                key: Key('Add Item Button'),
+                key: const Key('Add Item Button'),
                 onPressed: _addItem,
-                child: Text('Add Item'),
+                child: const Text('Add Item'),
               ),
             ],
           ),
@@ -278,20 +287,19 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
       ),
       actions: <Widget>[
         TextButton(
-          child: Text('Close'),
+          child: const Text('Close'),
           onPressed: () {
-            Navigator.of(context).pop(); // Close the popup
+            Navigator.of(context).pop(); 
           },
         ),
         TextButton(
-          child: Text('Submit'),
+          child: const Text('Submit'),
           onPressed: () {
             if (_formKey.currentState!.validate()) {
-    // Proceed with the form submission logic if all fields are valid
     
                 Map<String, dynamic> updatedResult = {
                 "shop_information": shopNameController.text,
-                "type": typeController.text, // "type" is a reserved keyword in Dart, consider renaming this field to something like "purchase_type
+                "type": typeController.text, 
                 "time": dateController.text,
                 "total": totalController.text,
                 "item_purchase": {}
@@ -304,19 +312,13 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
                   "price": priceControllersDict[entry.key]?.text
                 };
               }
-
               updatedResult["user_id"] = globals.user_id;
               updatedResult["receipt_id"] = result["receipt_id"];
-              // updatedResult["type"] = result["type"];
-
               String updatedJson = json.encode({
                 "results": updatedResult,
                 "new_receipt": widget.isNewReceipt
               });
-
-              // Here, you can use updatedJson as you need
-              print(updatedJson); // For debugging
-              // Handle the submission logic here
+              print(updatedJson); 
               DataService().sendReviewedData(json.decode(updatedJson));
               Navigator.of(context).pop();
             }

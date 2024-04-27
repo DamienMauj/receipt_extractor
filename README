@@ -8,20 +8,43 @@ The server require `Docker` technology, if you don't have one it can be download
 ```
 https://docs.docker.com/get-docker/
 ```
+To build he mobile application, `flutter` is needed. It can be install following
+```
+https://docs.flutter.dev/get-started/install
+```
 
-## Usage
-[Provide instructions on how to use the project, including any configuration or setup required]
 
 ## Deployment
-[Provide step-by-step instructions on how to deploy the project]
 
-1. [Step 1]
-2. [Step 2]
-3. [Step 3]
-    ...
+### Server
 
-## Contributing
-[Explain how others can contribute to the project, including guidelines for submitting pull requests or reporting issues]
+At the root of the project run these command to build the server image
+```bash
+make server-build 
+```
+if you want to give a fresh empty database:
+```bash
+make rebuild-db
+```
+then finally:
+```bash
+make server-start
+```
 
-## License
-[Specify the license under which the project is distributed]
+### Mobile Application
+ 
+To build the mobile application, as from the root folder run
+```bash
+cd src/MobileApp/receipt_extraction_project/receipt_extractor
+```
+Then connect you phone in developer mode with usb debugging enable or run a phone emulator on the computer.
+Ensure that the device you want to be build in is available when running:
+```bash
+flutter devices
+```
+
+Finally to build the project, run:
+```bash
+flutter run
+```
+(note: it make take some time to build, more or less 1-2 min)

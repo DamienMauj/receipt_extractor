@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:receipt_extractor/widgets/navigation_bar.dart';
 import 'package:fl_chart/fl_chart.dart' as fl_Chart;
-// import 'package:flutter_charts/flutter_charts.dart' as flutter_charts;
 import 'package:intl/intl.dart';
 import 'package:receipt_extractor/widgets/analitics/pie_chart.dart';
 import 'package:receipt_extractor/classes/receipt_class.dart';
 import 'package:receipt_extractor/classes/data_service_class.dart';
 import 'package:receipt_extractor/widgets/analitics/line_chart.dart';
 import 'package:receipt_extractor/globals.dart' as globals;
-
-
 
 
 class GraphPage extends StatefulWidget {
@@ -34,45 +31,34 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     futureReceipts = widget.dataService.fetchReceipts(globals.user_id);
-    // List<FlSpot> spots = [];
-  
   }
 
   @override
   void dispose() {
-    // Dispose of the TabController
     _tabController.dispose();
     super.dispose();
   }
 
-
   Widget buildAnimatedLineChart(List<Receipt> data, List<FlSpot> spots) {
-
     Map<DateTime, double> groupByMonth(List<Receipt> receipts) {
       Map<DateTime, double> monthlyTotals = {};
 
       for (var receipt in receipts) {
         DateTime month = DateTime(receipt.date.year, receipt.date.month);
-
         if (!monthlyTotals.containsKey(month)) {
           monthlyTotals[month] = 0;
         }
         monthlyTotals[month] = monthlyTotals[month]! + receipt.total;
       }
-
       return monthlyTotals;
     }
 
     List<Receipt> filterLatestThreeMonths(List<Receipt> receipts) {
-      // Sort the receipts by date in descending order
       receipts.sort((a, b) => b.date.compareTo(a.date));
 
-      // Get the unique year-month combinations of the latest three months
       var uniqueDates = receipts.map((e) => DateTime(e.date.year, e.date.month)).toSet().toList();
-      uniqueDates.sort((a, b) => b.compareTo(a)); // Ensure the dates are sorted
-      uniqueDates = uniqueDates.take(4).toList(); // Take only the latest three months
-
-      // Filter the receipts to only include those from the latest three months
+      uniqueDates.sort((a, b) => b.compareTo(a)); 
+      uniqueDates = uniqueDates.take(4).toList(); 
       return receipts.where((receipt) {
         var receiptMonth = DateTime(receipt.date.year, receipt.date.month);
         return uniqueDates.contains(receiptMonth);
@@ -80,24 +66,17 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
     }
 
     List<Receipt> latestData = filterLatestThreeMonths(data);
-
     Map<DateTime, double> monthlyTotals = groupByMonth(latestData);
 
-
-    // List<LineChartBarData> lines = [];
     List<FlSpot> spots = monthlyTotals.entries.map((entry) {
       return FlSpot(entry.key.millisecondsSinceEpoch.toDouble(), entry.value);
     }).toList();
-    print("spots: $spots");
-
-    // set state ofn spots
     this.spots = spots;
-    print("spots: ${this.spots}");
 
     return Container(
       padding: const EdgeInsets.all(50),
       width: double.infinity,
-      height: double.infinity, // Adjust height as necessary
+      height: double.infinity,
       child: fl_Chart.LineChart(
         LineChartData(
             lineBarsData: [
@@ -121,10 +100,9 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
             ),
           ),
       ),
-    );
-
-    
+    );  
   }
+
   SideTitles get _bottomTitles => SideTitles(
     showTitles: true,
     reservedSize: 30,
@@ -132,8 +110,6 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
         bool isCloseToSpot(double spotValue, double checkValue) {
             return (spotValue - 300000000.0 <= checkValue) && (checkValue <= spotValue + 300000000.0);
         }
-
-        // Find a spot that is within the tolerance range of the value
         bool hasCloseSpot = spots.any((spot) => isCloseToSpot(spot.x, value));
 
         if (hasCloseSpot) {
@@ -146,26 +122,25 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
                     formattedDate,
                     style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 8, // Adjust the font size as needed
+                        fontSize: 8, 
                     ),
                 ),
             );
         } else {
-            return const Text(''); // Empty text for values not close to any spot
+            return const Text(''); 
         }
     },
 );
 
   SideTitles get _leftTitles => SideTitles(
     showTitles: true,
-    reservedSize: 30,  // Adjust this size based on your needs
+    reservedSize: 30, 
     getTitlesWidget: (value, meta) {
-      // Format the value as needed for the Y-axis
       return Text(
-        value.toStringAsFixed(2),  // Example formatting
+        value.toStringAsFixed(2), 
         style: const TextStyle(
           fontWeight: FontWeight.bold,
-          fontSize: 12,  // Adjust the font size as needed
+          fontSize: 12, 
         ),
         textAlign: TextAlign.right,
       );
@@ -182,7 +157,7 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
           children: [
             TabBar(
               key: const Key('Tab Bar'),
-              controller: _tabController, // Link the TabController here
+              controller: _tabController, 
               tabs: const [
                 Tab(key: Key("Tab 1"),  text: 'Line Chart'),
                 Tab(key: Key("Tab 2"),  text: 'Pie Chart'),
@@ -196,10 +171,8 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
       builder: (context, snapshot) {
         spots = [];
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // Show a loading indicator while waiting for the data
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          // Display an error message if something went wrong
           return Column(
             key: const Key('Error Message'),
             mainAxisAlignment: MainAxisAlignment.center,
@@ -224,18 +197,15 @@ class _GraphPageState extends State<GraphPage> with SingleTickerProviderStateMix
             ],
           );
         } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-          // Once the data is fetched, build the TabBarView with all three charts
           return TabBarView(
             key: const Key('Tab Bar View'),
             controller: _tabController,
             children: [
-              AnimatedLineChartWidget(data: snapshot.data!), // Line chart with data
-              BarChartWithSelector(data: snapshot.data!),  // Bar chart with the same data
-              // pieChart(),  // Pie chart with the same data
+              AnimatedLineChartWidget(data: snapshot.data!), 
+              BarChartWithSelector(data: snapshot.data!),
             ],
           );
         } else {
-          // Handle the case where no data is available
           return const Center(
             key: Key('No Data Message'),
             child: Text(

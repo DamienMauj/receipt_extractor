@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:receipt_extractor/widgets/camera.dart';
 import 'package:http/http.dart';
 import 'dart:io';
-import 'dart:ui' as ui;
 import 'package:image_picker/image_picker.dart';
-import 'package:receipt_extractor/widgets/camera_roll.dart';
 import 'package:receipt_extractor/widgets/navigation_bar.dart';
 import 'package:receipt_extractor/classes/data_service_class.dart';
 import 'package:receipt_extractor/globals.dart' as globals;
@@ -89,7 +87,6 @@ class _CameraPageState extends State<CameraPage> {
           throw Exception('Failed to upload picture');
         }
     } catch (e) {
-      // Handle error here
     } finally {
       setState(() {
         _isUploading = false;
@@ -130,11 +127,11 @@ class _CameraPageState extends State<CameraPage> {
                     key: const Key('Open Camera Button'),
                     onPressed: _showCameraPopup,
                     style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(120, 60), // Makes the button square and larger
-                      shape: const RoundedRectangleBorder( // Makes the button edges square
+                      minimumSize: const Size(120, 60),
+                      shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.zero,
                       ),
-                      padding: const EdgeInsets.all(16), // Optional: add padding to increase the size
+                      padding: const EdgeInsets.all(16),
                     ),
                     child: const Text('Open Camera'),
                   ),
@@ -142,34 +139,32 @@ class _CameraPageState extends State<CameraPage> {
                     key: const Key('Open Gallery Button'),
                     onPressed: _pickImageFromGallery,
                     style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(120, 60), // Makes the button square and larger
-                      shape: const RoundedRectangleBorder( // Makes the button edges square
+                      minimumSize: const Size(120, 60), 
+                      shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.zero,
                       ),
-                      padding: const EdgeInsets.all(16), // Optional: add padding to increase the size
+                      padding: const EdgeInsets.all(16),
                     ),
                     child: const Text('Open Gallery'),
                   ),
                   if (_imageFile != null)
                   ElevatedButton.icon(
                     key: const Key('Extract Button'),
-                    onPressed: _isUploading ? null : _uploadAndSendImage, // Disable button when uploading
+                    onPressed: _isUploading ? null : _uploadAndSendImage, 
                     icon: _isUploading
                         ? const SizedBox(
                             height: 20.0,
                             width: 20.0,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.0,
-                            ),
-                          )
-                        : const Icon(Icons.upload),
+                            ),): const Icon(Icons.upload),
                     label: const Text('Extract'),
                     style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(120, 60), // Makes the button square and larger
-                      shape: const RoundedRectangleBorder( // Makes the button edges square
+                      minimumSize: const Size(120, 60), 
+                      shape: const RoundedRectangleBorder( 
                         borderRadius: BorderRadius.zero,
                       ),
-                      padding: const EdgeInsets.all(16), // Optional: add padding to increase the size
+                      padding: const EdgeInsets.all(16),
                     ),
                   ),
                 ],

@@ -1,0 +1,27 @@
+# Receipt Extraction System
+
+## Description
+This readme of how to deploy the server 
+
+## Required
+The server require `Docker` technology, if you don't have one it can be download at 
+```
+https://docs.docker.com/get-docker/
+```
+
+## Usage
+[Provide instructions on how to use the project, including any configuration or setup required]
+
+## Deployment
+[Provide step-by-step instructions on how to deploy the project]
+
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
+    ...
+
+## Contributing
+[Explain how others can contribute to the project, including guidelines for submitting pull requests or reporting issues]
+
+## License
+[Specify the license under which the project is distributed]

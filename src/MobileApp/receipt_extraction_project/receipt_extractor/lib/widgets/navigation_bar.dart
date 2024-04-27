@@ -3,11 +3,8 @@ import 'package:receipt_extractor/pages/camera_page.dart';
 import 'package:receipt_extractor/pages/list_page.dart';
 import 'package:receipt_extractor/pages/graph_page.dart';
 
-
-
 class CustomBottomNavigationBar extends StatefulWidget {
   final int selectedIndex;
-
   CustomBottomNavigationBar({required this.selectedIndex});
 
   @override
@@ -51,7 +48,6 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

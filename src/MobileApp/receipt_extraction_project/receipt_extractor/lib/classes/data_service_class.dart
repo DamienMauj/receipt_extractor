@@ -2,15 +2,10 @@ import 'dart:convert';
 import 'package:receipt_extractor/classes/receipt_class.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter/material.dart';
-import 'dart:convert';
-
 import 'package:camera/camera.dart';
 import 'package:http/http.dart';
 import 'package:mime/mime.dart' as mime;
 import 'package:http_parser/http_parser.dart';
-
-
 
 class DataService {
 
@@ -20,70 +15,48 @@ class DataService {
 
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
-      // print("data: $data");
       return data.map((json) =>  Receipt.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load receipts : ${response.statusCode} - ${response.body} - ${response.request}');
     }
   }
 
+
   Future<Response> sendPicture(XFile? _imageFile, String user_id) async {
     if (_imageFile == null) {
       throw Exception('No image file selected');
     }
+    final mimeTypeData = mime.lookupMimeType(_imageFile!.path, headerBytes: [0xFF, 0xD8])?.split('/');
+    var request = http.MultipartRequest('POST', Uri.parse("http://${dotenv.env['CURRENT_IP']}:8000/uploadPicture/"));
 
-    // try {
-      final mimeTypeData = mime.lookupMimeType(_imageFile!.path, headerBytes: [0xFF, 0xD8])?.split('/');
-      var request = http.MultipartRequest('POST', Uri.parse("http://${dotenv.env['CURRENT_IP']}:8000/uploadPicture/"));
+    request.fields['user_id'] = user_id; 
 
-      request.fields['user_id'] = user_id; // Add the user_id field
+    request.files.add(await http.MultipartFile.fromPath(
+      'file', 
+      _imageFile!.path,
+      contentType: MediaType(mimeTypeData![0], mimeTypeData[1]),
+    ));
 
-      request.files.add(await http.MultipartFile.fromPath(
-        'file', // This depends on your API endpoint's field name
-        _imageFile!.path,
-        contentType: MediaType(mimeTypeData![0], mimeTypeData[1]),
-      ));
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
 
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
-
-      return response;
-
-      // if (response.statusCode == 200) {
-      //   print('Picture uploaded');
-      //   showPopup(context, "uplaod picture", response.body, false);
-      //   return ;
-      // } else {
-      //   print('Failed to upload picture');
-      //   return ;
-      // }
-    // } catch (e) {
-    //   print(e.toString());
-    //   return ;
-    // }
+    return response;
   }
+
 
   Future<String> sendReviewedData(Map<String, dynamic> data) async {
-  final response = await http.post(
-    Uri.parse("http://${dotenv.env['CURRENT_IP']}:8000/uploadReceiptData/"),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(data),
-  );
+    final response = await http.post(
+      Uri.parse("http://${dotenv.env['CURRENT_IP']}:8000/uploadReceiptData/"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+    );
 
-  if (response.statusCode == 200) {
-    // If the server returns a 200 OK response,
-    // then parse the JSON.
-    print('Data sent successfully');
-    return response.body;
-  } else {
-    // If the server returns an unsuccessful response code,
-    // then throw an exception.
-    print('Failed to send data');
-    return 'Failed to send data';
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      return 'Failed to send data';
+    }
   }
-}
-
-
 }

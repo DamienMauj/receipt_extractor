@@ -107,13 +107,13 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
   return Column(
     children: [
       Container(
-        margin: EdgeInsets.symmetric(vertical: 8),
+        margin: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           children: [
             Container(
               height: 48, 
               alignment: Alignment.center, 
-              padding: EdgeInsets.symmetric(horizontal: 8), 
+              padding: const EdgeInsets.symmetric(horizontal: 8), 
               child: Text(
                 '$category: ',
                 key: Key("${category} text"),
@@ -126,7 +126,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
             const SizedBox(width: 8),
             Expanded(
               child: Container(
-                constraints: BoxConstraints(minHeight: 48), 
+                constraints: const BoxConstraints(minHeight: 48), 
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: (validationErrors[category] ?? false) ? Colors.red : Colors.grey,
@@ -140,7 +140,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
                   decoration: InputDecoration(
                     border: InputBorder.none, 
                     hintText: category,
-                    contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
                   ),
                   style: TextStyle(fontSize: _fontSize),
                   validator: (value) {
@@ -186,7 +186,7 @@ class _ReceiptPopupState extends State<ReceiptPopup> {
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 hintText: 'Name',
-                contentPadding: EdgeInsets.symmetric(vertical: 10.0), 
+                contentPadding: const EdgeInsets.symmetric(vertical: 10.0), 
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),

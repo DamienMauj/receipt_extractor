@@ -103,7 +103,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
             );
           } else {
             return const Center(
-              key: const Key('No Receipts Message'),
+              key: Key('No Receipts Message'),
               child: Text("No receipts found. Add a new receipt.", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             );
           }

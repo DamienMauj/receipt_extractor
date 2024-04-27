@@ -29,7 +29,6 @@ class Receipt {
         date: DateTime.parse(json['time']),
         total: json['total'] as double,
         item_purchase: jsonDecode(json['item_purchase'] as String),
-        // initialize other fields...
       );
     } catch (e) {
       _logger.d('Error parsing receipt: $e');
@@ -40,7 +39,6 @@ class Receipt {
         date: DateTime.now(),
         total: 0.0,
         item_purchase: null,
-        // initialize other fields...
       );
     }
   }

@@ -36,7 +36,3 @@ def extract_receipt(model:YOLO, file_path:str)->dict:
         print(f"\n{class_label}: {receipt_data[class_label]}")
 
     return receipt_data
-
-# if __name__ == "__main__":
-#     model = YOLO("src/Server/model/versions/0.1/receipt_extractor.pt")
-#     print(extract_receipt(model, "/Users/damienmaujean/Library/CloudStorage/OneDrive-Personal/university/MiddleSex University/Year 3/CST3990 Individual Project/src/receipt extractor/experimentation/receipt extraction model.v2i.yolov8/train/images/d1200d48-IMG_20231221_163158_jpg.rf.62e836e90e98bdc0f0b982dc3f6be3f4.jpg"))

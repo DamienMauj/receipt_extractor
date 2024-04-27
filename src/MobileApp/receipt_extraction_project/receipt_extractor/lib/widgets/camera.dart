@@ -4,7 +4,6 @@ import 'package:camera/camera.dart';
 
 class CameraPopupWidget extends StatefulWidget {
   final Function(XFile) onPictureTaken;
-
   CameraPopupWidget({Key? key, required this.onPictureTaken}) : super(key: key);
 
   @override
@@ -35,7 +34,7 @@ class _CameraPopupWidgetState extends State<CameraPopupWidget> {
     }
   }
 
-  void _toggleFlash() { // New method to toggle flash
+  void _toggleFlash() { 
     if (_controller != null) {
       setState(() {
         _isFlashOn = !_isFlashOn;
@@ -59,7 +58,7 @@ class _CameraPopupWidgetState extends State<CameraPopupWidget> {
         final file = await _controller!.takePicture();
         widget.onPictureTaken(file);
       } catch (e) {
-        print(e);  // Handle errors
+        print(e);  
       }
     }
   }
@@ -80,23 +79,23 @@ class _CameraPopupWidgetState extends State<CameraPopupWidget> {
             children: [
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                minimumSize: const Size(120, 60), // Makes the button square and larger
-                shape: const RoundedRectangleBorder( // Makes the button edges square
+                minimumSize: const Size(120, 60), 
+                shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.zero,
                 ),
-                padding: const EdgeInsets.all(16), // Optional: add padding to increase the size
+                padding: const EdgeInsets.all(16), 
               ),
-              onPressed: _toggleFlash,  // Toggle flash when this button is pressed
+              onPressed: _toggleFlash,  
               icon: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off),
               label: Text('Toggle Flash'),
             ),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                minimumSize: const Size(120, 60), // Makes the button square and larger
-                shape: const RoundedRectangleBorder( // Makes the button edges square
+                minimumSize: const Size(120, 60), 
+                shape: const RoundedRectangleBorder( 
                   borderRadius: BorderRadius.zero,
                 ),
-                padding: const EdgeInsets.all(16), // Optional: add padding to increase the size
+                padding: const EdgeInsets.all(16), 
               ),
               onPressed: _takePicture,
               icon: Icon(Icons.camera),

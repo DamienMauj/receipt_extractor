@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File, status, Response, Form
 from pydantic import BaseModel, EmailStr
 from dotenv import load_dotenv
-import os
 from psycopg2.extras import RealDictCursor
 from psycopg2 import Binary
 from receipt_server.helper import get_db_connection
@@ -27,12 +26,14 @@ load_dotenv()
 model = YOLO(MODEL_PATH)
 log.info("INFO: model loaded")
 
+# Load the environment variables
 DB_HOST = os.getenv('DB_HOST')
 DB_PORT = os.getenv('DB_PORT')
 DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_NAME = os.getenv('DB_NAME')
 
+# Create the FastAPI app
 app = FastAPI()
 
 
@@ -196,6 +197,7 @@ async def upload_receipt_data(kwargs: dict, response: Response):
         cursor.close()
         conn.close()
 
+# Endpoint to get receipt data
 @app.get("/getReceipt/")
 async def get_receipt_data(user_id: str = None):
     try:

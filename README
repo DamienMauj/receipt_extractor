@@ -16,6 +16,9 @@ https://docs.flutter.dev/get-started/install
 
 ## Deployment
 
+IMPORTANT: Due to local deployment, the server should be start before building the mobile application and both should be used under the same network.
+           ALso due to the fact that when the server is start it overwrite a variable in the mobile app script with he machine private IP.
+
 ### Server
 
 At the root of the project run these command to build the server image

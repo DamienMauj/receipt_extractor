@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 import uuid
+from dateutil import parser
 
 def clean_receipt_data(data, receipt_id = str(uuid.uuid4()) , user_id = str(uuid.uuid4())):
     # Define the expected schema with default values
@@ -29,8 +30,11 @@ def clean_receipt_data(data, receipt_id = str(uuid.uuid4()) , user_id = str(uuid
     try:
         cleaned_data["time"] = str(datetime.strptime(data["time"], "%Y-%m-%d %H:%M:%S"))
     except (ValueError, TypeError, KeyError):
-        print(f"Error in time - {data['time']}")
-        cleaned_data["time"] = None
+        try:
+            cleaned_data["time"] = str(parser.parse(data["time"]))
+        except e:
+            print(f"Error in time - {data['time']}")
+            cleaned_data["time"] = None
 
     # Validate item_purchase
     if isinstance(data.get("item_purchase"), dict):
